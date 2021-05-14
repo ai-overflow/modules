@@ -20,6 +20,9 @@ function parseParams(str, vars) {
 }
 
 function generateParams(params, vars) {
+    if (!params)
+        return "";
+
     let paramStr = "?";
     for (let [n, value] of Object.entries(params)) {
         paramStr += parseParams(n, vars) + "=" + parseParams(value, vars) + "&";
@@ -28,6 +31,9 @@ function generateParams(params, vars) {
 }
 
 function generateFormData(formData, vars) {
+    if (!formData)
+        return null;
+
     var bodyFormData = new FormData();
     for (let [n, value] of Object.entries(formData)) {
         let data;
@@ -43,6 +49,9 @@ function generateFormData(formData, vars) {
 }
 
 function generateHeaders(headers, vars) {
+    if (!headers)
+        return {};
+
     let headerOutput = {};
     for (let [n, value] of Object.entries(headers)) {
         headerOutput[parseParams(n, vars)] = parseParams(value, vars);
