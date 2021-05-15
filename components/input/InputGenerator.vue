@@ -74,14 +74,19 @@ export default {
     if (this.typeInfo.type === "checkbox") {
       this.inputData = [];
     }
+    if (this.typeInfo.type === "slider") {
+      this.inputData = parseFloat(this.inputData);
+    }
+    if (["textarea", "input"].includes(this.typeInfo.type)) {
+      this.inputData = "";
+    }
   },
   methods: {
     generateRules(rules) {
       let ruleSet = [];
       if (rules.regex) {
         ruleSet.push(
-          (v) =>
-            !!(v || "").match(new RegExp(rules.regex)) || `Ungültige Eingabe`
+          (v) => !!new RegExp(rules.regex).test(v) || `Ungültige Eingabe`
         );
       }
       if (rules.length) {

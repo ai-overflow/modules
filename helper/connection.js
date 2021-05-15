@@ -87,8 +87,7 @@ export default async function doRequest(host, input, vars) {
         default:
             break;
     }
-
-    let query = await axios({
+    return axios({
         method: input.method,
         url: url,
         data: data,
@@ -97,7 +96,4 @@ export default async function doRequest(host, input, vars) {
             ...generateHeaders(input.headers)
         }
     });
-    console.log(query);
-
-    return query;
 }
