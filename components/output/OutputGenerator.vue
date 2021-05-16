@@ -28,7 +28,18 @@
       </div>
     </div>
     <div v-if="['image'].includes(output.type)">
-      
+      <div v-for="value in parseListLabel" :key="value[1]" class="ma-2">
+        <v-row>
+          <v-col class="pb-0"> {{ value[1] }} </v-col>
+          <v-col class="text-right pb-0">
+            <v-img
+              max-height="150"
+              max-width="250"
+              :src="value[0]"
+            ></v-img>
+          </v-col>
+        </v-row>
+      </div>
     </div>
   </div>
 </template>
