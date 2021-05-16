@@ -27,6 +27,9 @@
         </div>
       </div>
     </div>
+    <div v-if="['image'].includes(output.type)">
+      
+    </div>
   </div>
 </template>
 

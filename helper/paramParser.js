@@ -8,8 +8,14 @@ export function parseParams(str, input, connection = undefined) {
             let result = str.replace(/{{cmd.json\((.*?)\)}}/, "$1");
             result = result.split("/");
 
-            const matchArray = /(.*?)\[(.*?)\]/;
+            // if {{cmd.json(input.something/abc/def)}}
             let currentSelected = connection.value;
+
+            if (result[0].startsWith("input")) {
+                currentSelected = result[0].split(".")[1];
+            }
+
+            const matchArray = /(.*?)\[(.*?)\]/;
             for (let val of result) {
                 if (!currentSelected)
                     return str;
@@ -24,7 +30,7 @@ export function parseParams(str, input, connection = undefined) {
                         currentSelected = currentSelected[index];
                     }
                 } else {
-                    if (val.toLowerCase() === "root") continue;
+                    if (val.toLowerCase() === result[0]) continue;
                     if (Array.isArray(currentSelected)) {
                         currentSelected = currentSelected.map(e => e[val]);
                     } else {
