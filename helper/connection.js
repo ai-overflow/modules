@@ -1,23 +1,5 @@
 import axios from 'axios';
-
-function parseParams(str, vars) {
-    // special case for vars:
-    if (str.startsWith("{{input.") && str.endsWith("}}")) {
-        const result = str.replace(/{{input.(.*?)}}/, "$1");
-        return vars[result];
-    }
-    let re = /{{(.*?)}}/g;
-    return str.replaceAll(re, (a, b) => {
-        b = b.replace("input.", "");
-        if (a && b && vars[b]) {
-            return vars[b];
-        } else if (!vars[b]) {
-            return '';
-        } else {
-            return a;
-        }
-    });
-}
+import {parseParams} from './paramParser';
 
 function generateParams(params, vars) {
     if (!params)
