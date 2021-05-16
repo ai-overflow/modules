@@ -5,7 +5,9 @@
         <div v-for="value in parseListLabel" :key="value[1]" class="ma-2">
           <v-row>
             <v-col class="pb-0"> {{ value[1] }} </v-col>
-            <v-col class="text-right pb-0"> {{ Math.round(value[0] * 100) / 100 }}% </v-col>
+            <v-col class="text-right pb-0">
+              {{ Math.round(value[0] * 100) / 100 }}%
+            </v-col>
           </v-row>
           <v-row>
             <v-col>
@@ -15,6 +17,13 @@
               ></v-progress-linear>
             </v-col>
           </v-row>
+        </div>
+      </div>
+    </div>
+    <div v-if="['html'].includes(output.type)">
+      <div v-if="output.format">
+        <div v-for="value in parseHTMLType" :key="value" class="ma-2">
+          <div v-html="value"></div>
         </div>
       </div>
     </div>
@@ -46,11 +55,15 @@ export default {
     },
   },
   computed: {
-    parseListLabel: function() {
-      let res = zip([this.parseArrays(this.output.format.labelValue), this.parseArrays(this.output.format.labelName)]);
-      console.log(res);
-      return res;
-    }
+    parseListLabel: function () {
+      return zip([
+        this.parseArrays(this.output.format.labelValue),
+        this.parseArrays(this.output.format.labelName),
+      ]);
+    },
+    parseHTMLType: function () {
+      return this.parseArrays(this.output.format.labelValue);
+    },
   },
 };
 </script>

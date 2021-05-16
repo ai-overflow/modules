@@ -3,7 +3,7 @@ export function parseParams(str, input, connection = undefined) {
     if (str.startsWith("{{input.") && str.endsWith("}}")) {
         const result = str.replace(/{{input.(.*?)}}/, "$1");
         return input[result];
-    } else if (str.startsWith("{{cmd.") && str.endsWith("}}")) {
+    } else if (str.startsWith("{{cmd.") && str.endsWith("}}") && connection) {
         if (str.startsWith("{{cmd.json")) {
             let result = str.replace(/{{cmd.json\((.*?)\)}}/, "$1");
             result = result.split("/");
@@ -12,7 +12,7 @@ export function parseParams(str, input, connection = undefined) {
             let currentSelected = connection.value;
             for (let val of result) {
                 if (!currentSelected)
-                    return [];
+                    return str;
 
                 let arrayTest = val.match(matchArray);
                 if (arrayTest) {
@@ -33,7 +33,7 @@ export function parseParams(str, input, connection = undefined) {
                 }
             }
             // TODO: path split
-            return currentSelected;
+            return currentSelected || str;
         }
     }
     let re = /{{(.*?)}}/g;
