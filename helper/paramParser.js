@@ -19,12 +19,13 @@ export function parseParams(str, input, connection = undefined) {
 
                 let connName = result[0].split(".")[1];
                 if (connection[connName]) {
-                    if(!connection[connName].success) {
+                    if (!connection[connName].success) {
                         return "FAILED REQUEST";
                     }
                     currentSelected = connection[connName].value;
                 } else {
                     console.log("TODO: request", connName);
+                    return "TODO: REQUEST " + connName;
                 }
             }
 
@@ -70,4 +71,11 @@ export function parseParams(str, input, connection = undefined) {
             return a;
         }
     });
+}
+
+export function parseOrigin(str, vars) {
+    if(!str) return str;
+    let val = str.split(".");
+    val = val[1];
+    return vars[val];
 }
