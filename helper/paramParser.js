@@ -1,4 +1,6 @@
 export function parseParams(str, input, connection = undefined) {
+    if (!str) return "";
+
     // special case for vars:
     if (str.startsWith("{{input.") && str.endsWith("}}")) {
         const result = str.replace(/{{input.(.*?)}}/, "$1");
@@ -8,8 +10,23 @@ export function parseParams(str, input, connection = undefined) {
             let result = str.replace(/{{cmd.json\((.*?)\)}}/, "$1");
             result = result.split("/");
 
+
             // if {{cmd.json(input.something/abc/def)}}
-            let currentSelected = connection.value;
+            let currentSelected;
+
+            if (result[0].startsWith("connection")) {
+                if (Object.keys(connection).length < 1) return str;
+
+                let connName = result[0].split(".")[1];
+                if (connection[connName]) {
+                    if(!connection[connName].success) {
+                        return "FAILED REQUEST";
+                    }
+                    currentSelected = connection[connName].value;
+                } else {
+                    console.log("TODO: request", connName);
+                }
+            }
 
             if (result[0].startsWith("input")) {
                 currentSelected = result[0].split(".")[1];

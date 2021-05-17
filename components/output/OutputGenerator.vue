@@ -50,7 +50,7 @@ import { zip } from "@shared/helper/utility";
 
 export default {
   props: {
-    connectionData: Object,
+    connectionData: Array,
     output: Object,
     inputVars: Object,
   },

@@ -26,7 +26,6 @@ function generateFormData(formData, vars) {
         }
         bodyFormData.append(parseParams(n, vars), data);
     }
-    console.log("called:", bodyFormData);
     return bodyFormData;
 }
 
@@ -42,7 +41,6 @@ function generateHeaders(headers, vars) {
 }
 
 export default async function doRequest(host, input, vars) {
-    console.log(host, input, vars);
 
     const protocol = (input.protocol ? input.protocol.toLowerCase() : "http");
     const hostname = (host ? host : "localhost");
