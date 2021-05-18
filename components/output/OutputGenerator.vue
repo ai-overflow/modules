@@ -2,17 +2,25 @@
   <div>
     <div v-if="['list'].includes(output.type)">
       <div v-if="output.format">
-        <div v-for="value in parseListLabel" :key="value[1]" class="ma-2">
+        <div v-for="value in parseListLabel" :key="value[0]" class="ma-2">
           <v-row>
-            <v-col class="pb-0"> {{ value[1] }} </v-col>
-            <v-col class="text-right pb-0">
-              {{ Math.round(value[0] * 100) / 100 }}%
+            <v-col class="pb-0"> {{ value[0] }} </v-col>
+            <v-col
+              class="text-right pb-0"
+              v-if="output.format.representation !== 'text'"
+            >
+              {{
+                output.format.representation === "percentageBar"
+                  ? Math.round(value[1] * 100) / 100
+                  : value[1]
+              }}
+              {{ output.format.representation === "percentageBar" ? "%" : "" }}
             </v-col>
           </v-row>
-          <v-row>
+          <v-row v-if="output.format.representation === 'percentageBar'">
             <v-col>
               <v-progress-linear
-                :value="value[0]"
+                :value="value[1]"
                 color="primary"
               ></v-progress-linear>
             </v-col>
@@ -35,11 +43,11 @@
       </div>
     </div>
     <div v-if="['image'].includes(output.type)">
-      <div v-for="value in parseListLabel" :key="value[1]" class="ma-2">
+      <div v-for="value in parseListLabel" :key="value[0]" class="ma-2">
         <v-row>
-          <v-col class="pb-0"> {{ value[1] }} </v-col>
+          <v-col class="pb-0"> {{ value[0] }} </v-col>
           <v-col class="text-right pb-0">
-            <v-img max-height="150" max-width="250" :src="value[0]"></v-img>
+            <v-img max-height="150" max-width="250" :src="value[1]"></v-img>
           </v-col>
         </v-row>
       </div>
@@ -90,10 +98,14 @@ export default {
   watch: {},
   computed: {
     parseListLabel: function () {
-      return zip([
-        this.parseArrays(this.output.format.labelValue),
-        this.parseArrays(this.output.format.labelName),
-      ]);
+      if (this.output.format.representation === "text") {
+        return zip([this.parseArrays(this.output.format.labelName)]);
+      } else {
+        return zip([
+          this.parseArrays(this.output.format.labelName),
+          this.parseArrays(this.output.format.labelValue),
+        ]);
+      }
     },
     parsePolygonLabel: function () {
       return zip([
