@@ -1,40 +1,92 @@
 <template>
-  <div ref="el" :style="{ backgroundImage: 'url(' + overlay + ')' }"></div>
+  <div
+    ref="el"
+    :style="{
+      width: imgSize.width + 'px',
+      height: imgSize.height + 'px',
+      backgroundImage: 'url(' + base64Str + ')',
+    }"
+    class="polygonView"
+  ></div>
 </template>
 
 <script>
 import Two from "two.js";
+import { toBase64, readSize, scaleToSize } from "@shared/helper/utility";
 
 export default {
   data() {
     return {
-      two: new Two({
-        autostart: true,
-      }),
+      maxImageSize: 500,
+      two: this.generateTwo(),
+      base64Str: "ERROR",
+      imgSize: {},
     };
   },
   props: {
     data: Array,
     representation: String,
-    overlay: String
+    overlay: File,
   },
   methods: {
     createPolygons() {
+      if (!this.two) return;
       this.two.appendTo(this.$el);
 
       for (let poly of this.data) {
         if (!Array.isArray(poly.value)) continue;
 
-        let anchors = poly.value.map((e) => new Two.Anchor(e.x, e.y));
+        let anchors = poly.value.map(
+          (e) =>
+            new Two.Anchor(
+              e.x * this.imgSize.scaleFactor,
+              e.y * this.imgSize.scaleFactor
+            )
+        );
         let path = this.two.makePath(anchors, false);
         path.fill = poly.color || "rgba(0, 255, 0, 0.5)";
       }
       this.two.update();
     },
+    generateTwo() {
+      if (!this.imgSize || !this.imgSize.width || !this.imgSize.height) {
+        return null;
+      }
+
+      return new Two({
+        autostart: true,
+        width: this.imgSize.width,
+        height: this.imgSize.height,
+      });
+    },
+  },
+  watch: {
+    overlay: function () {
+      if (this.overlay) {
+        toBase64(this.overlay)
+          .then((e) => {
+            this.base64Str = e;
+            return readSize(e);
+          })
+          .then((e) => {
+            this.imgSize = scaleToSize(e, this.maxImageSize);
+            this.two = this.generateTwo();
+            this.createPolygons();
+          })
+          .catch((e) => console.log("ERROR;", e));
+      }
+    },
+    data: function () {
+      this.createPolygons();
+    },
   },
   mounted() {
-    console.log("called");
     this.createPolygons();
   },
 };
 </script>
+<style>
+.polygonView {
+  background-size: cover;
+}
+</style>

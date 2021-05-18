@@ -47,7 +47,7 @@
     <div v-if="['polygon'].includes(output.type)">
       <div class="ma-2">
         <PolygonMap
-          :overlay="base64Str"
+          :overlay="getSrcForOrigin"
           :data="parsePolygonLabel"
           :representation="this.output.format.represenation"
         />
@@ -58,7 +58,7 @@
 
 <script>
 import { parseParams, parseOrigin } from "@shared/helper/paramParser";
-import { zip, toBase64 } from "@shared/helper/utility";
+import { zip } from "@shared/helper/utility";
 import PolygonMap from "@shared/components/helper/PolygonMap";
 
 export default {
@@ -68,18 +68,7 @@ export default {
     inputVars: Object,
   },
   data() {
-    return {
-      base64Str: "ERROR",
-    };
-  },
-  created() {
-    if (this.getSrcForOrigin) {
-      toBase64(this.getSrcForOrigin)
-        .then((e) => {
-          this.base64Str = e;
-        })
-        .catch((e) => console.log("ERROR;", e));
-    }
+    return {};
   },
   components: { PolygonMap },
   methods: {
@@ -98,6 +87,7 @@ export default {
       });
     },
   },
+  watch: {},
   computed: {
     parseListLabel: function () {
       return zip([

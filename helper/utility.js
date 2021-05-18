@@ -12,3 +12,28 @@ export function toBase64(file) {
         reader.onerror = error => reject(error);
     });
 }
+
+
+export function readSize(file) {
+    return new Promise((resolve, reject) => {
+        let img = new Image();
+        img.onload = () => resolve({ width: img.width, height: img.height });
+        img.onerror = error => reject(error);
+        img.src = file;
+    });
+}
+
+export function scaleToSize(currentDimensions, expectedSize) {
+    let scaleFactor;
+    if (currentDimensions.width > currentDimensions.height) {
+        scaleFactor = expectedSize / currentDimensions.width;
+    } else {
+        scaleFactor = expectedSize / currentDimensions.height;
+    }
+
+    return {
+        width: currentDimensions.width * scaleFactor,
+        height: currentDimensions.height * scaleFactor,
+        scaleFactor: scaleFactor
+    };
+}
