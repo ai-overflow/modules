@@ -70,7 +70,7 @@ export default {
           })
           .then((e) => {
             this.imgSize = scaleToSize(e, this.maxImageSize);
-            this.two = this.generateTwo();
+            if (!this.two) this.two = this.generateTwo();
             this.createPolygons();
           })
           .catch((e) => console.log("ERROR;", e));
