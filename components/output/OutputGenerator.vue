@@ -38,7 +38,7 @@
     <div v-if="['iframe'].includes(output.type)">
       <div v-if="output.format">
         <div v-for="value in parseHTMLType" :key="value" class="ma-2">
-          <iframe :src="value" :title="value" />
+          <iframe :src="value" :title="value" frameborder="0" />
         </div>
       </div>
     </div>
