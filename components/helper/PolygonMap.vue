@@ -43,8 +43,25 @@ export default {
               e.y * this.imgSize.scaleFactor
             )
         );
-        let path = this.two.makePath(anchors, false);
-        path.fill = poly.color || "rgba(0, 255, 0, 0.5)";
+        let path;
+        switch (this.representation) {
+          case "filled":
+            path = this.two.makePath(anchors, false);
+            path.fill = poly.color || "rgba(0, 255, 0, 0.5)";
+            break;
+          case "polygon":
+            path = this.two.makePath(anchors, false);
+            path.stroke = poly.color || "rgba(0, 255, 0, 0.5)";
+            path.fill = "transparent";
+            path.linewidth = 5;
+            break;
+          case "dots":
+            for (let anchor of anchors) {
+              let circle = this.two.makeCircle(anchor.x, anchor.y, 5);
+              circle.fill = poly.color || "rgba(0, 255, 0, 0.5)";
+            }
+            break;
+        }
       }
       this.two.update();
     },

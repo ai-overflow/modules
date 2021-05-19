@@ -57,7 +57,7 @@
         <PolygonMap
           :overlay="getSrcForOrigin"
           :data="parsePolygonLabel"
-          :representation="this.output.format.represenation"
+          :representation="this.output.format.representation"
         />
       </div>
     </div>
