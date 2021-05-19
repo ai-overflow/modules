@@ -60,6 +60,8 @@
 </template>
 
 <script>
+import { toBase64 } from "@shared/helper/utility";
+
 export default {
   props: {
     typeInfo: Object,
@@ -107,6 +109,14 @@ export default {
   },
   watch: {
     inputData: function () {
+      if(this.typeInfo.type === "image") {
+        if(this.typeInfo.values.type === "base64") {
+          toBase64(this.inputData)
+          .then(e => {
+            this.$emit("input", e);
+          });
+        }
+      }
       this.$emit("input", this.inputData);
     },
   },

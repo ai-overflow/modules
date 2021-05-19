@@ -37,3 +37,9 @@ export function scaleToSize(currentDimensions, expectedSize) {
         scaleFactor: scaleFactor
     };
 }
+
+export function cutStringLength(part, maxLength = 200) {
+    if (part.length > maxLength)
+        return part.substr(0, maxLength) + "...";
+    return part;
+}
