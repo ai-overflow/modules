@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {parseParams} from './paramParser';
+import {parseParams} from './paramParser.ts';
 
 function generateParams(params, vars) {
     if (!params)

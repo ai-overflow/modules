@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import { parseParams, parseOrigin } from "@shared/helper/paramParser";
+import { parseParams, parseOrigin } from "@shared/helper/paramParser.ts";
 import { zip } from "@shared/helper/utility";
 import PolygonMap from "@shared/components/helper/PolygonMap";
 

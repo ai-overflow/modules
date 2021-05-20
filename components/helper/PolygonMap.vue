@@ -1,13 +1,16 @@
 <template>
-  <div
-    ref="el"
-    :style="{
-      width: imgSize.width + 'px',
-      height: imgSize.height + 'px',
-      backgroundImage: 'url(' + base64Str + ')',
-    }"
-    class="polygonView"
-  ></div>
+  <div>
+    TEST
+    <div
+      ref="el"
+      :style="{
+        width: imgSize.width + 'px',
+        height: imgSize.height + 'px',
+        backgroundImage: 'url(' + base64Str + ')',
+      }"
+      class="polygonView"
+    ></div>
+  </div>
 </template>
 
 <script>
@@ -21,6 +24,7 @@ export default {
       two: this.generateTwo(),
       base64Str: "ERROR",
       imgSize: {},
+      elements: [],
     };
   },
   props: {
@@ -32,6 +36,8 @@ export default {
     createPolygons() {
       if (!this.two) return;
       this.two.appendTo(this.$el);
+      this.two.clear();
+      this.elements = [];
 
       for (let poly of this.data) {
         if (!Array.isArray(poly.value)) continue;
@@ -56,12 +62,15 @@ export default {
             path.linewidth = 5;
             break;
           case "dots":
+            path = [];
             for (let anchor of anchors) {
               let circle = this.two.makeCircle(anchor.x, anchor.y, 5);
               circle.fill = poly.color || "rgba(0, 255, 0, 0.5)";
+              path.push(circle);
             }
             break;
         }
+        this.elements.push(path);
       }
       this.two.update();
     },
