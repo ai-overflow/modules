@@ -57,7 +57,7 @@ function parseCMD(str: string, connection: Map<string, Connection>) {
     return currentSelected || str;
 }
 
-export function parseParams(str: string, input, connection?: Map<string, Connection>): any {
+export function parseParams(str: string, input: Record<string, any>, connection?: Map<string, Connection>): any {
     if (!str) return "";
 
     // special case for vars:
@@ -82,9 +82,8 @@ export function parseParams(str: string, input, connection?: Map<string, Connect
     });
 }
 
-export function parseOrigin(str, vars) {
+export function parseOrigin(str: string, vars: Record<string, any>) {
     if (!str) return str;
-    let val = str.split(".");
-    val = val[1];
-    return vars[val];
+    const val = str.split(".");
+    return vars[val[1]];
 }

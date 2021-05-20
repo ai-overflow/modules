@@ -1,10 +1,6 @@
-enum Method {
-    GET,PUT,PATCH,POST,DELETE,HEAD,COPY,OPTIONS,LINK,UNLINK,PURGE,LOCK,UNLOCK,PROPFIND,VIEW
-}
+type Method = "GET" | "PUT" | "PATCH" | "POST" | "DELETE" | "HEAD" | "OPTIONS" | "LINK" | "UNLINK" | "PURGE";
 
-enum Protocol {
-    HTTP, HTTPS
-}
+type Protocol = "HTTP" | "HTTPS"
 
 export interface ProjectDescription {
     body: any

@@ -1,10 +1,10 @@
-export function zip(rows) {
+export function zip(rows: Array<any>) {
     return rows[0].map(
-        (_, c) => rows.map(row => row[c])
+        (_: any, c: any) => rows.map(row => row[c])
     );
 }
 
-export function toBase64(file) {
+export function toBase64(file: Blob) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -14,7 +14,7 @@ export function toBase64(file) {
 }
 
 
-export function readSize(file) {
+export function readSize(file: string) {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => resolve({ width: img.width, height: img.height });
@@ -23,7 +23,7 @@ export function readSize(file) {
     });
 }
 
-export function scaleToSize(currentDimensions, expectedSize) {
+export function scaleToSize(currentDimensions: { width: number; height: number; }, expectedSize: number) {
     let scaleFactor;
     if (currentDimensions.width > currentDimensions.height) {
         scaleFactor = expectedSize / currentDimensions.width;
@@ -38,7 +38,7 @@ export function scaleToSize(currentDimensions, expectedSize) {
     };
 }
 
-export function cutStringLength(part, maxLength = 200) {
+export function cutStringLength(part: string, maxLength = 200) {
     if (part.length > maxLength)
         return part.substr(0, maxLength) + "...";
     return part;
