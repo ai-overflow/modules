@@ -1,12 +1,13 @@
 import axios from 'axios';
-import {parseParams} from './paramParser.ts';
+import { parseParams } from './paramParser';
+import { ProjectDescription } from "./projectDescription";
 
 function generateParams(params, vars) {
     if (!params)
         return "";
 
     let paramStr = "?";
-    for (let [n, value] of Object.entries(params)) {
+    for (const [n, value] of Object.entries(params)) {
         paramStr += parseParams(n, vars) + "=" + parseParams(value, vars) + "&";
     }
     return paramStr;
@@ -16,8 +17,8 @@ function generateFormData(formData, vars) {
     if (!formData)
         return null;
 
-    var bodyFormData = new FormData();
-    for (let [n, value] of Object.entries(formData)) {
+    const bodyFormData = new FormData();
+    for (const [n, value] of Object.entries(formData)) {
         let data;
         if (value.type === "text") {
             data = parseParams(value.value, vars);
@@ -33,18 +34,20 @@ function generateHeaders(headers, vars) {
     if (!headers)
         return {};
 
-    let headerOutput = {};
-    for (let [n, value] of Object.entries(headers)) {
+    const headerOutput = {};
+    for (const [n, value] of Object.entries(headers)) {
         headerOutput[parseParams(n, vars)] = parseParams(value, vars);
     }
     return headerOutput;
 }
 
-export default async function doRequest(host, input, vars) {
+export default async function doRequest(host: string, input: ProjectDescription, vars) {
+    console.log("input: ", input);
 
-    const protocol = (input.protocol ? input.protocol.toLowerCase() : "http");
+    const protocol = (input.protocol ? (input.protocol as any as string).toLowerCase() : "http");
     const hostname = (host ? host : "localhost");
     const path = parseParams(input.path, vars);
+    console.log("path: ", path, input.path, vars);
     const params = generateParams(input.params, vars);
     const url = protocol + "://" + hostname + ":" + input.port + path + params;
 

@@ -16,7 +16,7 @@ export function toBase64(file) {
 
 export function readSize(file) {
     return new Promise((resolve, reject) => {
-        let img = new Image();
+        const img = new Image();
         img.onload = () => resolve({ width: img.width, height: img.height });
         img.onerror = error => reject(error);
         img.src = file;

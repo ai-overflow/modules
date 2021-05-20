@@ -1,6 +1,4 @@
 <template>
-  <div>
-    TEST
     <div
       ref="el"
       :style="{
@@ -10,7 +8,6 @@
       }"
       class="polygonView"
     ></div>
-  </div>
 </template>
 
 <script>

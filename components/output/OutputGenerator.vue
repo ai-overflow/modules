@@ -65,13 +65,13 @@
 </template>
 
 <script>
-import { parseParams, parseOrigin } from "@shared/helper/paramParser.ts";
+import { parseParams, parseOrigin } from "@shared/helper/paramParser";
 import { zip } from "@shared/helper/utility";
 import PolygonMap from "@shared/components/helper/PolygonMap";
 
 export default {
   props: {
-    connectionData: Object,
+    connectionData: Map,
     output: Object,
     inputVars: Object,
   },

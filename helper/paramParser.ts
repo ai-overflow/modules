@@ -1,28 +1,25 @@
 interface Connection {
     success: boolean
+    value: any
 }
 
-interface ConnectionList {
-    connections: Array<Connection>
-}
-
-function parseCMD(str: String, connection: ConnectionList = undefined) {
-    let result = str.replace(/{{cmd.json\((.*?)\)}}/, "$1");
-    let results = result.split("/");
+function parseCMD(str: string, connection: Map<string, Connection>) {
+    const result = str.replace(/{{cmd.json\((.*?)\)}}/, "$1");
+    const results = result.split("/");
 
 
     // if {{cmd.json(input.something/abc/def)}}
     let currentSelected;
 
     if (results[0].startsWith("connection")) {
-        if (Object.keys(connection).length < 1) return str;
+        if (connection.size < 1) return str;
 
-        let connName = results[0].split(".")[1];
-        if (connection[connName]) {
-            if (!connection[connName].success) {
+        const connName = results[0].split(".")[1];
+        if (connection.get(connName)) {
+            if (!connection.get(connName)?.success) {
                 return "FAILED REQUEST";
             }
-            currentSelected = connection[connName].value;
+            currentSelected = connection.get(connName)?.value;
         } else {
             console.log("TODO: request", connName);
             return "TODO: REQUEST " + connName;
@@ -34,14 +31,14 @@ function parseCMD(str: String, connection: ConnectionList = undefined) {
     }
 
     const matchArray = /(.*?)\[(.*?)\]/;
-    for (let val of results) {
+    for (const val of results) {
         if (!currentSelected)
             return str;
 
-        let arrayTest = val.match(matchArray);
+        const arrayTest = val.match(matchArray);
         if (arrayTest) {
-            let splicedVal = arrayTest[1];
-            let index = arrayTest[2];
+            const splicedVal = arrayTest[1];
+            const index = arrayTest[2];
 
             currentSelected = currentSelected[splicedVal];
             if (index !== "") {
@@ -60,7 +57,7 @@ function parseCMD(str: String, connection: ConnectionList = undefined) {
     return currentSelected || str;
 }
 
-export function parseParams(str, input, connection = undefined) {
+export function parseParams(str: string, input, connection?: Map<string, Connection>): any {
     if (!str) return "";
 
     // special case for vars:
@@ -69,20 +66,20 @@ export function parseParams(str, input, connection = undefined) {
         return input[result];
     } else if (str.startsWith("{{cmd.") && str.endsWith("}}") && connection) {
         if (str.startsWith("{{cmd.json")) {
-            parseCMD(str, connection);
+            return parseCMD(str, connection);
         }
-        let re = /{{(.*?)}}/g;
-        return str.replaceAll(re, (a, b) => {
-            b = b.replace("input.", "");
-            if (a && b && input[b]) {
-                return input[b];
-            } else if (!input[b]) {
-                return '';
-            } else {
-                return a;
-            }
-        });
     }
+    const re = /{{(.*?)}}/g;
+    return str.replaceAll(re, (a, b) => {
+        b = b.replace("input.", "");
+        if (a && b && input[b]) {
+            return input[b];
+        } else if (!input[b]) {
+            return '';
+        } else {
+            return a;
+        }
+    });
 }
 
 export function parseOrigin(str, vars) {
