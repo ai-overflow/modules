@@ -1,20 +1,19 @@
 import axios from 'axios';
-import { parseParams } from './paramParser';
+import { paramParser } from './paramParser';
 import { ProjectDescription } from "./projectDescription";
 
-function generateParams(params: Record<string, string>, vars: Record<string, string>) {
-    console.log(vars);
+function generateParams(params: Record<string, string>) {
     if (!params)
         return "";
 
     let paramStr = "?";
     for (const [n, value] of Object.entries(params)) {
-        paramStr += parseParams(n, vars) + "=" + parseParams(value, vars) + "&";
+        paramStr += paramParser.parseParams(n) + "=" + paramParser.parseParams(value) + "&";
     }
     return paramStr;
 }
 
-function generateFormData(formData: Record<string, any>, vars: Record<string, any>) {
+function generateFormData(formData: Record<string, any>) {
     if (!formData)
         return null;
 
@@ -22,32 +21,31 @@ function generateFormData(formData: Record<string, any>, vars: Record<string, an
     for (const [n, value] of Object.entries(formData)) {
         let data;
         if (value.type === "text") {
-            data = parseParams(value.value, vars);
+            data = paramParser.parseParams(value.value);
         } else {
-            data = parseParams(value.value, vars);
+            data = paramParser.parseParams(value.value);
         }
-        bodyFormData.append(parseParams(n, vars), data);
+        bodyFormData.append(paramParser.parseParams(n), data);
     }
     return bodyFormData;
 }
 
-function generateHeaders(headers: Record<string, string>, vars: Record<string, any>) {
+function generateHeaders(headers: Record<string, string>) {
     if (!headers)
         return {};
 
     const headerOutput: Record<string, any> = {};
     for (const [n, value] of Object.entries(headers)) {
-        headerOutput[parseParams(n, vars)] = parseParams(value, vars);
+        headerOutput[paramParser.parseParams(n)] = paramParser.parseParams(value);
     }
     return headerOutput;
 }
 
-export default async function doRequest(host: string, input: ProjectDescription, vars: Record<string, any>) {
-
+export default async function doRequest(host: string, input: ProjectDescription) {
     const protocol = (input.protocol ? input.protocol.toLowerCase() : "http");
     const hostname = (host ? host : "localhost");
-    const path = parseParams(input.path, vars);
-    const params = generateParams(input.params, vars);
+    const path = paramParser.parseParams(input.path);
+    const params = generateParams(input.params);
     const url = protocol + "://" + hostname + ":" + input.port + path + params;
 
     console.log(url);
@@ -57,14 +55,14 @@ export default async function doRequest(host: string, input: ProjectDescription,
     switch (input.body.type) {
         case 'raw':
         case 'binary':
-            data = parseParams(input.body.input, vars);
+            data = paramParser.parseParams(input.body.input);
             if (data) {
                 contentType = data.type;
             }
             break;
         case 'form':
         case 'form-data':
-            data = generateFormData(input.body.input, vars);
+            data = generateFormData(input.body.input);
             break;
         default:
             break;
@@ -75,7 +73,7 @@ export default async function doRequest(host: string, input: ProjectDescription,
         data: data,
         headers: {
             'Content-Type': contentType,
-            ...generateHeaders(input.headers, vars)
+            ...generateHeaders(input.headers)
         }
     });
 }

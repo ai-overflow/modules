@@ -51,6 +51,7 @@ export default {
           case "filled":
             path = this.two.makePath(anchors, false);
             path.fill = poly.color || "rgba(0, 255, 0, 0.5)";
+            console.log(path._renderer);
             break;
           case "polygon":
             path = this.two.makePath(anchors, false);

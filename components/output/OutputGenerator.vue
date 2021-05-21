@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import { parseParams, parseOrigin } from "@shared/helper/paramParser";
+import { paramParser, parseOrigin } from "@shared/helper/paramParser";
 import { zip } from "@shared/helper/utility";
 import PolygonMap from "@shared/components/helper/PolygonMap";
 
@@ -81,7 +81,7 @@ export default {
   components: { PolygonMap },
   methods: {
     parseArrays(value) {
-      let val = parseParams(value, this.inputVars, this.connectionData);
+      let val = paramParser.parseParams(value);
 
       return Array.isArray(val) ? val : [val];
     },
