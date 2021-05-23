@@ -6,13 +6,13 @@ interface Connection {
 class ParamParser {
     private paramCache = new Map<string, any>();
     private _input?: Record<string, any>;
-    private _connection?: Map<string, Connection>
+    private _connection?: Record<string, Connection>
 
     public set input(input: Record<string, any>) {
         this._input = input;
     }
 
-    public set connection(input: Map<string, Connection>) {
+    public set connection(input: Record<string, Connection>) {
         this._connection = input;
     }
 
@@ -26,14 +26,14 @@ class ParamParser {
         let currentSelected;
 
         if (results[0].startsWith("connection")) {
-            if (this._connection.size < 1) return str;
+            if (Object.keys(this._connection).length < 1) return str;
 
             const connName = results[0].split(".")[1];
-            if (this._connection.get(connName)) {
-                if (!this._connection.get(connName)?.success) {
+            if (this._connection[connName]) {
+                if (!this._connection[connName]?.success) {
                     return "FAILED REQUEST";
                 }
-                currentSelected = this._connection.get(connName)?.value;
+                currentSelected = this._connection[connName]?.value;
             } else {
                 console.log("TODO: request", connName);
                 return "TODO: REQUEST " + connName;
@@ -83,7 +83,6 @@ class ParamParser {
                 return this.parseCMD(str);
             }
         }
-        console.log("parse: ", str, " | ", this._input);
 
         const re = /{{(.*?)}}/g;
         return str.replaceAll(re, (a, b) => {

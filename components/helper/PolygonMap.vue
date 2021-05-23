@@ -1,13 +1,13 @@
 <template>
-    <div
-      ref="el"
-      :style="{
-        width: imgSize.width + 'px',
-        height: imgSize.height + 'px',
-        backgroundImage: 'url(' + base64Str + ')',
-      }"
-      class="polygonView"
-    ></div>
+  <div
+    ref="el"
+    :style="{
+      width: imgSize.width + 'px',
+      height: imgSize.height + 'px',
+      backgroundImage: 'url(' + base64Str + ')',
+    }"
+    class="polygonView"
+  ></div>
 </template>
 
 <script>
@@ -28,6 +28,10 @@ export default {
     data: Array,
     representation: String,
     overlay: File,
+    highlight: {
+      type: Object,
+      required: false,
+    },
   },
   methods: {
     createPolygons() {
@@ -51,13 +55,22 @@ export default {
           case "filled":
             path = this.two.makePath(anchors, false);
             path.fill = poly.color || "rgba(0, 255, 0, 0.5)";
-            console.log(path._renderer);
+
+            if (this.highlight && Object.keys(this.highlight).includes(poly.name)) {
+              path.fill = "rgba(0, 255, 0, 0.5)";
+            }
+
             break;
           case "polygon":
             path = this.two.makePath(anchors, false);
             path.stroke = poly.color || "rgba(0, 255, 0, 0.5)";
             path.fill = "transparent";
             path.linewidth = 5;
+
+            if (this.highlight && Object.keys(this.highlight).includes(poly.name)) {
+              path.fill = "rgba(0, 255, 0, 0.5)";
+            }
+
             break;
           case "dots":
             path = [];
@@ -83,9 +96,7 @@ export default {
         height: this.imgSize.height,
       });
     },
-  },
-  watch: {
-    overlay: function () {
+    handleOverlay() {
       if (this.overlay) {
         toBase64(this.overlay)
           .then((e) => {
@@ -100,12 +111,20 @@ export default {
           .catch((e) => console.log("ERROR;", e));
       }
     },
+  },
+  watch: {
+    overlay: function () {
+      this.handleOverlay();
+    },
     data: function () {
+      this.createPolygons();
+    },
+    highlight: function () {
       this.createPolygons();
     },
   },
   mounted() {
-    this.createPolygons();
+    this.handleOverlay();
   },
 };
 </script>

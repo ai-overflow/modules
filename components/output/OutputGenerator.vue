@@ -2,7 +2,7 @@
   <div>
     <div v-if="['list'].includes(output.type)">
       <div v-if="output.format">
-        <div v-for="value in parseListLabel" :key="value[0]" class="ma-2">
+        <div v-for="value in parseListLabel" :key="value[0]" class="ma-2" @mouseenter="() => setElementActive(value[0])" @mouseleave="() => removeElementActive(value[0])">
           <v-row>
             <v-col class="pb-0"> {{ value[0] }} </v-col>
             <v-col
@@ -58,6 +58,7 @@
           :overlay="getSrcForOrigin"
           :data="parsePolygonLabel"
           :representation="this.output.format.representation"
+          :highlight="highlight"
         />
       </div>
     </div>
@@ -71,12 +72,18 @@ import PolygonMap from "@shared/components/helper/PolygonMap";
 
 export default {
   props: {
-    connectionData: Map,
     output: Object,
     inputVars: Object,
+    highlight: {
+      type: Object,
+      required: false,
+    },
+    value: {},
   },
   data() {
-    return {};
+    return {
+      outputData: {},
+    };
   },
   components: { PolygonMap },
   methods: {
@@ -94,8 +101,18 @@ export default {
         reader.onerror = (error) => reject(error);
       });
     },
+    setElementActive(el) {
+      this.$set(this.outputData, el, true);
+    },
+    removeElementActive(el) {
+      this.$delete(this.outputData, el);
+    }
   },
-  watch: {},
+  watch: {
+    outputData: function () {
+      this.$emit("input", this.outputData);
+    },
+  },
   computed: {
     parseListLabel: function () {
       if (this.output.format.representation === "text") {
