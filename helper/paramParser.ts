@@ -71,6 +71,22 @@ class ParamParser {
         return currentSelected || str;
     }
 
+    private parseConnectionData(str: string) {
+        console.log("go");
+        if(!this._connection) return;
+
+        let currentSelected;
+        const connName = str.replace(/{{connection.(.*?)}}/, "$1");
+        if (this._connection[connName]) {
+            if (!this._connection[connName]?.success) {
+                return "FAILED REQUEST";
+            }
+            currentSelected = this._connection[connName]?.value;
+        }
+
+        return currentSelected;
+    }
+
     public parseParams(str: string): any {
         if (!str) return "";
 
@@ -82,6 +98,8 @@ class ParamParser {
             if (str.startsWith("{{cmd.json")) {
                 return this.parseCMD(str);
             }
+        } else if (str.startsWith("{{connection.") && str.endsWith("}}") && this._connection) {
+            return this.parseConnectionData(str);
         }
 
         const re = /{{(.*?)}}/g;
@@ -100,8 +118,13 @@ class ParamParser {
 
 export const paramParser = new ParamParser();
 
-export function parseOrigin(str: string, vars: Record<string, any>) {
+export function parseOrigin(str: string, input_vars: Record<string, any>, output_vars: Record<string, any>) {
     if (!str) return str;
     const val = str.split(".");
-    return vars[val[1]];
+    if(val[0].toLowerCase() === "input")
+        return input_vars[val[1]];
+    else if(val[0].toLowerCase() === "output")
+        return output_vars[val[1]];
+    else
+        return str;
 }

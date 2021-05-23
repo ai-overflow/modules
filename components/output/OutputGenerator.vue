@@ -74,6 +74,7 @@ export default {
   props: {
     output: Object,
     inputVars: Object,
+    outputVars: Object,
     highlight: {
       type: Object,
       required: false,
@@ -137,7 +138,7 @@ export default {
       return this.parseArrays(this.output.format.labelValue);
     },
     getSrcForOrigin: function () {
-      return parseOrigin(this.output.format.overlay, this.inputVars);
+      return parseOrigin(this.output.format.overlay, this.inputVars, this.outputVars);
     },
   },
 };
