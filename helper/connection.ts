@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { paramParser } from './paramParser';
 import { ProjectDescription } from "./projectDescription";
 
@@ -41,6 +41,29 @@ function generateHeaders(headers: Record<string, string>) {
     return headerOutput;
 }
 
+export function convertToText(buffer: ArrayBuffer, encoding: string) {
+    const enc = new TextDecoder(encoding);
+    return enc.decode(buffer);
+}
+
+export function generateDataFromResponse(response: AxiosResponse<ArrayBuffer>) {
+    let content;
+    if (response.headers["content-type"].startsWith("image")) {
+        const arr = Buffer.from(response.data, "binary");
+        content =
+            "data:" +
+            response.headers["content-type"] +
+            ";base64," +
+            arr.toString("base64");
+    } else if (response.headers["content-type"].startsWith("application/json")) {
+        content = JSON.parse(convertToText(response.data, "utf-8"));
+    } else {
+        content = convertToText(response.data, "utf-8");
+    }
+
+    return content;
+}
+
 export default async function doRequest(host: string, input: ProjectDescription) {
     const protocol = (input.protocol ? input.protocol.toLowerCase() : "http");
     const hostname = (host ? host : "localhost");
@@ -71,6 +94,7 @@ export default async function doRequest(host: string, input: ProjectDescription)
         method: input.method,
         url: url,
         data: data,
+        responseType: 'arraybuffer',
         headers: {
             'Content-Type': contentType,
             ...generateHeaders(input.headers)
