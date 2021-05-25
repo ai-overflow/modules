@@ -95,6 +95,7 @@ export default async function doRequest(host: string, input: ProjectDescription)
         url: url,
         data: data,
         responseType: 'arraybuffer',
+        timeout: 20000,
         headers: {
             'Content-Type': contentType,
             ...generateHeaders(input.headers)

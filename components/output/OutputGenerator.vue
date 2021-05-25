@@ -2,7 +2,13 @@
   <div>
     <div v-if="['list'].includes(output.type)">
       <div v-if="output.format">
-        <div v-for="value in parseListLabel" :key="value[0]" class="ma-2" @mouseenter="() => setElementActive(value[0])" @mouseleave="() => removeElementActive(value[0])">
+        <div
+          v-for="value in parseListLabel"
+          :key="value[0]"
+          class="ma-2"
+          @mouseenter="() => setElementActive(value[0])"
+          @mouseleave="() => removeElementActive(value[0])"
+        >
           <v-row>
             <v-col class="pb-0"> {{ value[0] }} </v-col>
             <v-col
@@ -44,10 +50,19 @@
     </div>
     <div v-if="['image'].includes(output.type)">
       <div v-for="value in parseListLabel" :key="value[0]" class="ma-2">
-        <v-row>
+        <!--<v-row>
           <v-col class="pb-0"> {{ value[0] }} </v-col>
           <v-col class="text-right pb-0">
             <v-img max-height="150" max-width="250" :src="value[1]"></v-img>
+          </v-col>
+        </v-row>-->
+        <v-row>
+          <v-col>
+            <v-carousel hide-delimiters :show-arrows="parseListLabel.length > 1">
+              <v-carousel-item v-for="value in parseListLabel" :key="value[0]" :src="value[1]">
+                <v-container class="carousel-top-bar pa-1">{{ value[0] }}</v-container>
+              </v-carousel-item>
+            </v-carousel>
           </v-col>
         </v-row>
       </div>
@@ -107,7 +122,7 @@ export default {
     },
     removeElementActive(el) {
       this.$delete(this.outputData, el);
-    }
+    },
   },
   watch: {
     outputData: function () {
@@ -138,11 +153,20 @@ export default {
       return this.parseArrays(this.output.format.labelValue);
     },
     getSrcForOrigin: function () {
-      return parseOrigin(this.output.format.overlay, this.inputVars, this.outputVars);
+      return parseOrigin(
+        this.output.format.overlay,
+        this.inputVars,
+        this.outputVars
+      );
     },
   },
 };
 </script>
 
 <style>
+.carousel-top-bar {
+  text-align: center;
+  font-size: 20pt;
+  background: rgba(0, 0, 0, 0.3);
+}
 </style>
