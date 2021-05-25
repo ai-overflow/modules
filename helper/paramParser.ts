@@ -72,7 +72,6 @@ class ParamParser {
     }
 
     private parseConnectionData(str: string) {
-        console.log("go");
         if(!this._connection) return;
 
         let currentSelected;
