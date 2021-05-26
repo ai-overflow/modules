@@ -38,6 +38,9 @@ class ParamParser {
                     return "FAILED REQUEST";
                 }
                 currentSelected = this._connection[connName]?.value;
+                if(typeof currentSelected === "string") {
+                    currentSelected = JSON.parse(currentSelected);
+                }
             } else {
                 console.log("TODO: request", connName);
                 return "TODO: REQUEST " + connName;
