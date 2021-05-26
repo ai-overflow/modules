@@ -74,6 +74,7 @@
           :data="parsePolygonLabel"
           :representation="this.output.format.representation"
           :highlight="highlight"
+          :showLabels="this.output.format.showLabels"
         />
       </div>
     </div>
@@ -145,8 +146,9 @@ export default {
         this.parseArrays(this.output.format.labelValue),
         this.parseArrays(this.output.format.labelName),
         this.parseArrays(this.output.format.labelColor),
+        this.parseArrays(this.output.format.labelLineWidth),
       ]).map((e) => {
-        return { value: e[0], name: e[1], color: e[2] };
+        return { value: e[0], name: e[1], color: e[2], lineWidth: e[3] };
       });
     },
     parseHTMLType: function () {

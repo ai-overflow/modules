@@ -16,10 +16,14 @@ class ParamParser {
         this._connection = input;
     }
 
-    private parseCMD(str: string) {
+    /**
+     * TODO: Make this more generic (allow base string change...)
+     * @param str iterator string (e.g. /etc/abc[]/def)
+     * @returns Flat array from iterator string
+     */
+    public parseIterator(str: string) {
         if(!this._connection) return str;
-        const result = str.replace(/{{cmd.json\((.*?)\)}}/, "$1");
-        const results = result.split("/");
+        const results = str.split("/");
 
 
         // if {{cmd.json(input.something/abc/def)}}
@@ -71,6 +75,12 @@ class ParamParser {
         return currentSelected || str;
     }
 
+    private parseCMD(str: string) {
+        if(!this._connection) return str;
+        const result = str.replace(/{{cmd.json\((.*?)\)}}/, "$1");
+        return this.parseIterator(result);
+    }
+
     private parseConnectionData(str: string) {
         if(!this._connection) return;
 
@@ -86,6 +96,11 @@ class ParamParser {
         return currentSelected;
     }
 
+    /**
+     * Parses an Variable String
+     * @param str Variable String (e.g. {{cmd.json(abc/def[]/ghi)}})
+     * @returns Variable Output
+     */
     public parseParams(str: string): any {
         if (!str) return "";
 
