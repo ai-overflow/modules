@@ -105,7 +105,11 @@ export default {
         case "dots":
           path = [];
           for (let anchor of anchors) {
-            let circle = this.two.makeCircle(anchor.x, anchor.y, 5);
+            let circle = this.two.makeCircle(
+              anchor.x,
+              anchor.y,
+              poly.lineWidth || 5
+            );
             circle.fill = poly.color || "rgba(0, 255, 0, 0.5)";
             path.push(circle);
           }
@@ -153,28 +157,39 @@ export default {
       }
     },
     focusPolygon(index) {
-      if (this.elements[index]?.fill) {
-        this.elements[index].originalFill = this.elements[index].fill;
-        this.elements[index].fill = Color(this.elements[index].fill)
-          .negate()
-          .alpha(0.3)
-          .rgb()
-          .string();
+      if (Array.isArray(this.elements[index])) {
+        this.elements[index].forEach((element) => {
+          this._focusPolygon(element);
+        });
+      } else {
+        this._focusPolygon(this.elements[index]);
       }
-      if (this.elements[index]?.stroke) {
-        this.elements[index].originalStroke = this.elements[index].stroke;
-        this.elements[index].stroke = Color(this.elements[index].stroke)
-          .negate()
-          .rgb()
-          .string();
+    },
+    _focusPolygon(element) {
+      if (element?.fill) {
+        element.originalFill = element.fill;
+        element.fill = Color(element.fill).negate().alpha(0.3).rgb().string();
+      }
+      if (element?.stroke) {
+        element.originalStroke = element.stroke;
+        element.stroke = Color(element.stroke).negate().rgb().string();
       }
     },
     unfocusPolygon(index) {
-      if (this.elements[index]?.originalFill) {
-        this.elements[index].fill = this.elements[index]?.originalFill;
+      if (Array.isArray(this.elements[index])) {
+        this.elements[index].forEach((element) => {
+          this._unfocusPolygon(element);
+        });
+      } else {
+        this._unfocusPolygon(this.elements[index]);
       }
-      if (this.elements[index]?.originalStroke) {
-        this.elements[index].stroke = this.elements[index]?.originalStroke;
+    },
+    _unfocusPolygon(element) {
+      if (element?.originalFill) {
+        element.fill = element?.originalFill;
+      }
+      if (element?.originalStroke) {
+        element.stroke = element?.originalStroke;
       }
     },
   },
