@@ -21,7 +21,7 @@
           <template v-slot="{ item, index }">
             <div
               class="polygon"
-              v-on:mouseover="() => focusPolygon(item, index)"
+              v-on:mouseover="() => focusPolygon(index)"
               v-on:mouseleave="() => unfocusPolygon(index)"
             >
               {{ item.name }}
@@ -152,7 +152,7 @@ export default {
           .catch((e) => console.log("ERROR;", e));
       }
     },
-    focusPolygon(item, index) {
+    focusPolygon(index) {
       if (this.elements[index]?.fill) {
         this.elements[index].originalFill = this.elements[index].fill;
         this.elements[index].fill = Color(this.elements[index].fill)

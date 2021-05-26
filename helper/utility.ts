@@ -24,12 +24,7 @@ export function readSize(file: string) {
 }
 
 export function scaleToSize(currentDimensions: { width: number; height: number; }, expectedSize: number) {
-    let scaleFactor;
-    if (currentDimensions.width > currentDimensions.height) {
-        scaleFactor = expectedSize / currentDimensions.width;
-    } else {
-        scaleFactor = expectedSize / currentDimensions.height;
-    }
+    const scaleFactor = expectedSize / Math.max(currentDimensions.width, currentDimensions.height)
 
     return {
         width: currentDimensions.width * scaleFactor,
