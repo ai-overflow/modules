@@ -140,7 +140,7 @@ class ParamParser {
         }
 
         const re = /{{(.*?)}}/g;
-        return str.replaceAll(re, (a, b) => {
+        return str.replace(re, (a, b) => {
             if (b.startsWith("input.")) {
                 b = b.replace("input.", "");
                 if (a && b && this._input && this._input[b] !== undefined) {
