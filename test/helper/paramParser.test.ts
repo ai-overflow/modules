@@ -1,5 +1,17 @@
+/**
+ * @jest-environment jsdom
+ */
+
 const p = require("../../helper/paramParser");
 p.paramParser.input = { "a": 0, "b": "Hello World", "c": [1, 2, 3], "d": { "f": 0 }, "e": 99.99999 }
+
+let languageGetter: jest.SpyInstance<string | undefined, []>;
+let userAgent: jest.SpyInstance<string | undefined, []>;
+
+beforeEach(() => {
+    languageGetter = jest.spyOn(window.navigator, 'language', 'get')
+    userAgent = jest.spyOn(window.navigator, 'userAgent', 'get')
+})
 
 /********************
  * INPUT
@@ -84,6 +96,7 @@ test('Test CMD.JSON', () => {
         "f": { success: true, value: JSON.stringify({ "f": [[[1, 2, 3], [4, 5, 6]], [1, 2, 3]] }) },
         "g": { success: true, value: JSON.stringify([1, [2, 3]]) },
         "h": { success: true, value: JSON.stringify({"result": [{"proximity": 0}, {"proximity": 1}, {"proximity": 2}]}) },
+        "i": { success: true, value: "0" },
     };
 
     expect(p.paramParser.parseParams("{{cmd.json(connection.a)}}")).toStrictEqual([1, 2, 3]);
@@ -95,6 +108,7 @@ test('Test CMD.JSON', () => {
     expect(p.paramParser.parseParams("{{cmd.json(connection.f/f[0][1])}}")).toStrictEqual([4, 5, 6]);
     expect(p.paramParser.parseParams("{{cmd.json(connection.g/[1]/[1])}}")).toStrictEqual(3);
     expect(p.paramParser.parseParams("{{cmd.json(connection.h/result[]/proximity)}}")).toStrictEqual([0, 1, 2]);
+    expect(p.paramParser.parseParams("{{cmd.json(connection.i)}}")).toStrictEqual(0);
 });
 
 test('Test Fail JSON', () => {
@@ -109,4 +123,27 @@ test('Test Fail JSON', () => {
     expect(p.paramParser.parseParams("{{cmd.json(connection.b/f[]/g)}}")).toBe("Index error at: connection.b/f[]/g");
     expect(p.paramParser.parseParams("{{cmd.json(connection.b////)}}")).toBe("Out of Bounds: connection.b////");
     expect(p.paramParser.parseParams("{{cmd.json(connection.b/)}}")).toBe("Index error at: connection.b/");
+});
+
+/********************
+ * USER
+********************/
+
+test('Test User Variables', () => {
+    languageGetter.mockReturnValue('de')
+    userAgent.mockReturnValue('TEST/1.0')
+
+    expect(p.paramParser.parseParams("{{user.agent}}")).toBe("TEST/1.0");
+    expect(p.paramParser.parseParams("{{user.language}}")).toBe("de");
+    expect(p.paramParser.parseParams("Example {{user.language}} Example")).toBe("Example de Example");
+});
+
+test('Fail User Variables', () => {
+    languageGetter.mockReturnValue(undefined)
+    userAgent.mockReturnValue(undefined)
+
+    expect(p.paramParser.parseParams("{{user.}}")).toBe("unknown user property: ");
+    expect(p.paramParser.parseParams("{{user.LOREMIPSUM}}")).toBe("unknown user property: LOREMIPSUM");
+    expect(p.paramParser.parseParams("{{user.agent}}")).toBe("undefined");
+    expect(p.paramParser.parseParams("{{user.language}}")).toBe("undefined");
 });

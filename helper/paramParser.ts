@@ -61,7 +61,7 @@ class ParamParser {
         }
 
         for (const val of results) {
-            if (!currentSelected)
+            if (currentSelected === undefined)
                 return "Out of Bounds: " + str;
 
             const arrayTest = val.match(matchArray);
@@ -83,14 +83,14 @@ class ParamParser {
                 if (val.toLowerCase() === results[0]) continue;
                 if (Array.isArray(currentSelected)) {
                     currentSelected = currentSelected.map(e => e[val]);
-                    if(currentSelected.every((e) => e === undefined)) currentSelected = undefined;
+                    if (currentSelected.every((e) => e === undefined)) currentSelected = undefined;
                 } else {
                     currentSelected = currentSelected[val];
                 }
             }
         }
         // TODO: path split
-        return currentSelected || "Index error at: " + str;
+        return currentSelected === undefined ? "Index error at: " + str : currentSelected;
     }
 
     private parseCMD(str: string) {
@@ -153,6 +153,16 @@ class ParamParser {
                     this._connection[b] !== undefined &&
                     this._connection[b].success) {
                     return this._connection[b].value;
+                }
+            } else if(b.startsWith("user.")) {
+                b = b.replace("user.", "");
+                switch(b.toLowerCase()) {
+                    case 'agent':
+                        return navigator.userAgent;
+                    case 'language':
+                        return navigator.language;
+                    default:
+                        return 'unknown user property: ' + b;
                 }
             }
             return a;
