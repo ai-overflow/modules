@@ -1,4 +1,5 @@
 export function zip(rows: Array<any>) {
+    if (rows.length === 0) return [];
     return rows[0].map(
         (_: any, c: any) => rows.map(row => row[c])
     );
