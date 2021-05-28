@@ -95,6 +95,10 @@ export default {
       type: Object,
       required: false,
     },
+    iterator: {
+      type: Array,
+      required: false,
+    },
     value: {},
   },
   data() {
@@ -105,7 +109,7 @@ export default {
   components: { PolygonMap },
   methods: {
     parseArrays(value) {
-      let val = paramParser.parseParams(value);
+      let val = paramParser.parseParams(value, this.iterator);
 
       return Array.isArray(val) ? val : [val];
     },

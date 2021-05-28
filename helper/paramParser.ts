@@ -144,7 +144,7 @@ class ParamParser {
                 case 'json':
                     return this.parseIterator(value);
                 case 'iterator':
-                    return this.parseIterator(value, iterable);
+                    return iterable !== undefined ? this.parseIterator(value, iterable) : "Using iterator without having an iterator enabled: " + str;
             }
         } else if (str.startsWith("{{connection.") && str.endsWith("}}") && this._connection) {
             return this.parseConnectionData(str);

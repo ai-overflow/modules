@@ -167,7 +167,7 @@ test('Test Custom Iterators with Iterator String', () => {
 });
 
 test('Test Fail Custom Iterators with Iterator String', () => {
-    expect(p.paramParser.parseParams("{{cmd.iterator([]/f)}}")).toBe("Index error at: []/f");
+    expect(p.paramParser.parseParams("{{cmd.iterator([]/f)}}")).toBe("Using iterator without having an iterator enabled: {{cmd.iterator([]/f)}}");
     expect(p.paramParser.parseParams("{{cmd.iterator([]/f)}}", [1, 2, 3])).toBe("Index error at: []/f");
 });
 
