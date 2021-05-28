@@ -4,9 +4,9 @@ interface Connection {
 }
 
 class ParamParser {
-    private paramCache = new Map<string, any>();
     private _input?: Record<string, any>;
     private _connection?: Record<string, Connection>
+    private readonly commandRegex = /{{cmd\.([A-Za-z_]+)\((.*?)\)}}/
 
     public set input(input: Record<string, any>) {
         this._input = input;
@@ -21,8 +21,8 @@ class ParamParser {
      * @param str iterator string (e.g. /etc/abc[]/def)
      * @returns Flat array from iterator string
      */
-    public parseIterator(str: string) {
-        if (!this._connection) return str;
+    public parseIterator(str: string, iterable: Record<string, any> | undefined = this._connection) {
+        if (!iterable || !this._connection) return str;
         const results = str.split("/");
         const matchArray = /(.*?)\[(.*?)\]/;
         const matchNestedArray = /\[(.*?)\]/g;
@@ -31,7 +31,7 @@ class ParamParser {
         // if {{cmd.json(input.something/abc/def)}}
         let currentSelected;
 
-        if (results[0].startsWith("connection")) {
+        if (results[0].startsWith("connection.")) {
             if (Object.keys(this._connection).length < 1) return str;
 
             let connName = results[0].split(".")[1];
@@ -54,6 +54,8 @@ class ParamParser {
                 console.log("TODO: request", connName);
                 return "TODO: REQUEST " + connName;
             }
+        } else {
+            currentSelected = iterable;
         }
 
         if (results[0].startsWith("input")) {
@@ -95,7 +97,7 @@ class ParamParser {
 
     private parseCMD(str: string) {
         if (!this._connection) return str;
-        const result = str.replace(/{{cmd.json\((.*?)\)}}/, "$1");
+        const result = str.replace(/{{cmd\.json\((.*?)\)}}/, "$1");
         return this.parseIterator(result);
     }
 
@@ -103,7 +105,7 @@ class ParamParser {
         if (!this._connection) return;
 
         let currentSelected;
-        const connName = str.replace(/{{connection.(.*?)}}/, "$1");
+        const connName = str.replace(/{{connection\.(.*?)}}/, "$1");
 
         if (connName.trim().length === 0) return str;
         if (this._connection[connName]) {
@@ -121,7 +123,7 @@ class ParamParser {
      * @param str Variable String (e.g. {{cmd.json(abc/def[]/ghi)}})
      * @returns Variable Output
      */
-    public parseParams(str: string): any {
+    public parseParams(str: string, iterable?: Record<string, any>): any {
         if (!str) return "";
 
         // special case for vars:
@@ -132,8 +134,17 @@ class ParamParser {
             }
             return str;
         } else if (str.startsWith("{{cmd.") && str.endsWith("}}") && this._connection) {
-            if (str.startsWith("{{cmd.json")) {
-                return this.parseCMD(str);
+            const match = str.match(this.commandRegex);
+            if(!match) return str;
+
+            const command = match[1];
+            const value = match[2];
+
+            switch(command) {
+                case 'json':
+                    return this.parseIterator(value);
+                case 'iterator':
+                    return this.parseIterator(value, iterable);
             }
         } else if (str.startsWith("{{connection.") && str.endsWith("}}") && this._connection) {
             return this.parseConnectionData(str);

@@ -95,7 +95,7 @@ test('Test CMD.JSON', () => {
         "e": { success: true, value: JSON.stringify({ "f": [{ "g": [[1, 2, 3], [4, 5, 6]] }] }) },
         "f": { success: true, value: JSON.stringify({ "f": [[[1, 2, 3], [4, 5, 6]], [1, 2, 3]] }) },
         "g": { success: true, value: JSON.stringify([1, [2, 3]]) },
-        "h": { success: true, value: JSON.stringify({"result": [{"proximity": 0}, {"proximity": 1}, {"proximity": 2}]}) },
+        "h": { success: true, value: JSON.stringify({ "result": [{ "proximity": 0 }, { "proximity": 1 }, { "proximity": 2 }] }) },
         "i": { success: true, value: "0" },
     };
 
@@ -115,7 +115,7 @@ test('Test Fail JSON', () => {
     p.paramParser.connection = {
         "a": { success: false, value: JSON.stringify([1, 2, 3]) },
         "b": { success: true, value: JSON.stringify([0]) },
-        "c": { success: true, value: JSON.stringify({"f": [0]}) },
+        "c": { success: true, value: JSON.stringify({ "f": [0] }) },
     }
 
     expect(p.paramParser.parseParams("{{cmd.json(connection.a)}}")).toBe("FAILED REQUEST");
@@ -123,6 +123,52 @@ test('Test Fail JSON', () => {
     expect(p.paramParser.parseParams("{{cmd.json(connection.b/f[]/g)}}")).toBe("Index error at: connection.b/f[]/g");
     expect(p.paramParser.parseParams("{{cmd.json(connection.b////)}}")).toBe("Out of Bounds: connection.b////");
     expect(p.paramParser.parseParams("{{cmd.json(connection.b/)}}")).toBe("Index error at: connection.b/");
+});
+
+// -- Iterator --
+
+
+test('Test Iterators Parser', () => {
+    p.paramParser.connection = {
+        "a": { success: true, value: JSON.stringify({ "a": [1, 2, 3] }) },
+        "b": { success: true, value: JSON.stringify({ "a": [{ "f": 1 }, { "f": 2 }, { "f": 3 }] }) },
+    }
+    expect(p.paramParser.parseIterator("connection.a/a[]")).toStrictEqual([1, 2, 3]);
+    expect(p.paramParser.parseIterator("connection.b/a[]/f")).toStrictEqual([1, 2, 3]);
+    expect(p.paramParser.parseIterator("connection.b/a/f")).toStrictEqual([1, 2, 3]);
+});
+
+test('Test Custom Iterators Parser', () => {
+    p.paramParser.connection = {
+        "b": { success: true, value: JSON.stringify({ "a": [{ "f": 1 }, { "f": 2 }, { "f": 3 }] }) },
+    }
+
+    const iteratorA = p.paramParser.parseIterator("connection.b/a");
+    expect(p.paramParser.parseIterator("[]/f", iteratorA)).toStrictEqual([1, 2, 3]);
+
+    const iteratorB = [1, 2, 3];
+    expect(p.paramParser.parseIterator("[1]", iteratorB)).toStrictEqual(2);
+
+    const iteratorC = [[1, 2, 3], [[4, 5, 6], [7, 8, 9], 10], 11];
+    expect(p.paramParser.parseIterator("[1]/[1]/[0]", iteratorC)).toStrictEqual(7);
+
+    const iteratorD = { "f": [{ "g": 1 }] };
+    expect(p.paramParser.parseIterator("f[0]/g", iteratorD)).toStrictEqual(1);
+    expect(p.paramParser.parseIterator("connection.b/a/f", iteratorD)).toStrictEqual([1, 2, 3]);
+});
+
+test('Test Custom Iterators with Iterator String', () => {
+    p.paramParser.connection = {
+        "b": { success: true, value: JSON.stringify({ "a": [{ "f": 1 }, { "f": 2 }, { "f": 3 }] }) },
+    }
+
+    const iteratorA = p.paramParser.parseIterator("connection.b/a");
+    expect(p.paramParser.parseParams("{{cmd.iterator([]/f)}}", iteratorA)).toStrictEqual([1, 2, 3]);
+});
+
+test('Test Fail Custom Iterators with Iterator String', () => {
+    expect(p.paramParser.parseParams("{{cmd.iterator([]/f)}}")).toBe("Index error at: []/f");
+    expect(p.paramParser.parseParams("{{cmd.iterator([]/f)}}", [1, 2, 3])).toBe("Index error at: []/f");
 });
 
 /********************
