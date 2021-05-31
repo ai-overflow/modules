@@ -1,11 +1,21 @@
+import { AxiosResponse } from "axios";
+import { generateDataFromResponse } from "./connection";
+
 interface Connection {
     success: boolean
     value: any
 }
 
+interface ConnectionRef {
+    ref: string
+    vars: Record<string, string>
+}
+
 class ParamParser {
     private _input?: Record<string, any>;
     private _connection?: Record<string, Connection>
+    private _sendRequest?: (connectionName: string) => Promise<AxiosResponse<any>>
+    private varsStorage = new Map<string, string>();
     private readonly commandRegex = /{{cmd\.([A-Za-z_]+)\((.*?)\)}}/
 
     public set input(input: Record<string, any>) {
@@ -14,6 +24,10 @@ class ParamParser {
 
     public set connection(input: Record<string, Connection>) {
         this._connection = input;
+    }
+
+    public set sendRequest(fn: (connectionName: string) => Promise<AxiosResponse<any>>) {
+        this._sendRequest = fn;
     }
 
     /**
@@ -51,7 +65,6 @@ class ParamParser {
                     currentSelected = JSON.parse(currentSelected);
                 }
             } else {
-                console.log("TODO: request", connName);
                 return "TODO: REQUEST " + connName;
             }
         } else {
@@ -135,12 +148,12 @@ class ParamParser {
             return str;
         } else if (str.startsWith("{{cmd.") && str.endsWith("}}") && this._connection) {
             const match = str.match(this.commandRegex);
-            if(!match) return str;
+            if (!match) return str;
 
             const command = match[1];
             const value = match[2];
 
-            switch(command) {
+            switch (command) {
                 case 'json':
                     return this.parseIterator(value);
                 case 'iterator':
@@ -165,9 +178,9 @@ class ParamParser {
                     this._connection[b].success) {
                     return this._connection[b].value;
                 }
-            } else if(b.startsWith("user.")) {
+            } else if (b.startsWith("user.")) {
                 b = b.replace("user.", "");
-                switch(b.toLowerCase()) {
+                switch (b.toLowerCase()) {
                     case 'agent':
                         return navigator.userAgent;
                     case 'language':
@@ -175,9 +188,27 @@ class ParamParser {
                     default:
                         return 'unknown user property: ' + b;
                 }
+            } else if (b.startsWith("vars.")) {
+                b = b.replace("vars.", "");
+                return this.varsStorage.get(b) || "";
             }
             return a;
         });
+    }
+
+    public async asyncParseParams(connection: ConnectionRef) {
+        for(const [k, v] of Object.entries(connection.vars)) {
+            this.varsStorage.set(k, this.parseParams(v));
+        }
+        console.log(this.varsStorage);
+
+        if (this._sendRequest) {
+            return this._sendRequest(connection.ref).then(e => {
+                if(!this._connection) return;
+                this._connection[connection.ref] = {success: true, value: e};
+                return generateDataFromResponse(e);
+            });
+        }
     }
 }
 

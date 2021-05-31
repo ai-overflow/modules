@@ -1,5 +1,12 @@
 <template>
   <div>
+    <strong
+      v-if="title"
+      @mouseenter="() => setElementActive(title)"
+      @mouseleave="() => removeElementActive(title)"
+    >
+      {{ title }}
+    </strong>
     <div v-if="['list'].includes(output.type)">
       <div v-if="output.format">
         <div
@@ -48,24 +55,39 @@
         </div>
       </div>
     </div>
-    <div v-if="['image'].includes(output.type)">
-      <div v-for="value in parseListLabel" :key="value[0]" class="ma-2">
-        <!--<v-row>
-          <v-col class="pb-0"> {{ value[0] }} </v-col>
-          <v-col class="text-right pb-0">
-            <v-img max-height="150" max-width="250" :src="value[1]"></v-img>
-          </v-col>
-        </v-row>-->
-        <v-row>
-          <v-col>
-            <v-carousel hide-delimiters :show-arrows="parseListLabel.length > 1">
-              <v-carousel-item v-for="value in parseListLabel" :key="value[0]" :src="value[1]">
-                <v-container class="carousel-top-bar pa-1">{{ value[0] }}</v-container>
-              </v-carousel-item>
-            </v-carousel>
-          </v-col>
-        </v-row>
-      </div>
+    <div v-if="['image'].includes(output.type) && !output.format.connection">
+      <v-row>
+        <v-col>
+          <v-carousel hide-delimiters :show-arrows="parseListLabel.length > 1">
+            <v-carousel-item
+              v-for="value in parseListLabel"
+              :key="value[0]"
+              :src="value[1]"
+            >
+              <v-container class="carousel-top-bar pa-1">{{
+                value[0]
+              }}</v-container>
+            </v-carousel-item>
+          </v-carousel>
+        </v-col>
+      </v-row>
+    </div>
+    <div v-if="['image'].includes(output.type) && output.format.connection">
+      <v-row>
+        <v-col>
+          <v-carousel hide-delimiters :show-arrows="false">
+            <v-carousel-item
+              v-for="value in promiseBuffer"
+              :key="value[0]"
+              :src="value[1]"
+            >
+              <v-container class="carousel-top-bar pa-1">{{
+                value[0]
+              }}</v-container>
+            </v-carousel-item>
+          </v-carousel>
+        </v-col>
+      </v-row>
     </div>
     <div v-if="['polygon'].includes(output.type)">
       <div class="ma-2">
@@ -99,27 +121,37 @@ export default {
       type: Array,
       required: false,
     },
+    title: {
+      type: String,
+      required: false,
+    },
     value: {},
   },
   data() {
     return {
       outputData: {},
+      promiseBuffer: [],
     };
   },
   components: { PolygonMap },
+  created() {
+    this.asyncParseListLabel();
+  },
   methods: {
     parseArrays(value) {
       let val = paramParser.parseParams(value, this.iterator);
 
       return Array.isArray(val) ? val : [val];
     },
-    toBase64(file) {
-      return new Promise((resolve, reject) => {
-        if (!file) reject("");
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = (error) => reject(error);
+    asyncParseListLabel(connection = this.output?.format?.connection) {
+      if (!connection) return;
+
+      paramParser.asyncParseParams(connection).then((val) => {
+        let output = Array.isArray(val) ? val : [val];
+        this.promiseBuffer = zip([
+          this.parseArrays(this.output.format.labelName),
+          output,
+        ]);
       });
     },
     setElementActive(el) {

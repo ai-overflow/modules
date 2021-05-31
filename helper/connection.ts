@@ -75,21 +75,24 @@ export default async function doRequest(host: string, input: ProjectDescription)
     let data: any = {};
     let contentType = "text/plain";
 
-    switch (input.body.type) {
-        case 'raw':
-        case 'binary':
-            data = paramParser.parseParams(input.body.input);
-            if (data) {
-                contentType = data.type;
-            }
-            break;
-        case 'form':
-        case 'form-data':
-            data = generateFormData(input.body.input);
-            break;
-        default:
-            break;
+    if (input.body) {
+        switch (input.body.type) {
+            case 'raw':
+            case 'binary':
+                data = paramParser.parseParams(input.body.input);
+                if (data) {
+                    contentType = data.type;
+                }
+                break;
+            case 'form':
+            case 'form-data':
+                data = generateFormData(input.body.input);
+                break;
+            default:
+                break;
+        }
     }
+
     return axios({
         method: input.method,
         url: url,
