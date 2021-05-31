@@ -14,6 +14,17 @@ beforeEach(() => {
 })
 
 /********************
+ * Plain Text
+********************/
+
+test('Test Input', () => {
+    expect(p.paramParser.parseParams("0")).toBe("0");
+    expect(p.paramParser.parseParams("null")).toBe("null");
+    expect(p.paramParser.parseParams("undefined")).toBe("undefined");
+    expect(p.paramParser.parseParams("ABCDEFGHIJKLMNOPQRSTUVWXYZ")).toBe("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+});
+
+/********************
  * INPUT
 ********************/
 
@@ -39,7 +50,7 @@ test('Test Intermediate Input', () => {
     expect(p.paramParser.parseParams("Test {{input.a}} Test")).toBe("Test 0 Test");
     expect(p.paramParser.parseParams("Test {{input.b}} Test")).toBe("Test Hello World Test");
     expect(p.paramParser.parseParams("Test {{input.c}} Test")).toBe("Test 1,2,3 Test");
-    expect(p.paramParser.parseParams("Test {{input.d}} Test")).toBe("Test [object Object] Test"); // This is expected, as we can't deserialize an Object...
+    expect(p.paramParser.parseParams("Test {{input.d}} Test")).toBe("Test [object Object] Test"); // This is to be expected, as we can't deserialize an Object...
     expect(p.paramParser.parseParams("Test {{input.e}} Test")).toBe("Test 99.99999 Test");
 });
 
@@ -192,4 +203,24 @@ test('Fail User Variables', () => {
     expect(p.paramParser.parseParams("{{user.LOREMIPSUM}}")).toBe("unknown user property: LOREMIPSUM");
     expect(p.paramParser.parseParams("{{user.agent}}")).toBe("undefined");
     expect(p.paramParser.parseParams("{{user.language}}")).toBe("undefined");
+});
+
+/********************
+ * VARS
+********************/
+
+test('Test Vars', () => {
+    p.paramParser.asyncParseParams({
+        ref: "", vars: {
+            A: "0",
+            DEF: "LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG",
+            B: "{{input.b}}",
+            C: "{{input.a}}"
+        }
+    })
+
+    expect(p.paramParser.parseParams("{{vars.A}}")).toBe("0");
+    expect(p.paramParser.parseParams("{{vars.DEF}}")).toBe("LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG");
+    expect(p.paramParser.parseParams("{{vars.B}}")).toBe("Hello World");
+    expect(p.paramParser.parseParams("{{vars.C}}")).toBe("0");
 });

@@ -190,22 +190,25 @@ class ParamParser {
                 }
             } else if (b.startsWith("vars.")) {
                 b = b.replace("vars.", "");
-                return this.varsStorage.get(b) || "";
+                if (this.varsStorage.get(b) !== undefined) {
+                    return this.varsStorage.get(b)
+                }
+                return "Missing Variable: " + b;
             }
             return a;
         });
     }
 
-    public async asyncParseParams(connection: ConnectionRef) {
-        for(const [k, v] of Object.entries(connection.vars)) {
+    public async asyncParseParams(connection: ConnectionRef, doRequest: boolean = true) {
+        for (const [k, v] of Object.entries(connection.vars)) {
             this.varsStorage.set(k, this.parseParams(v));
         }
-        console.log(this.varsStorage);
 
-        if (this._sendRequest) {
+
+        if (this._sendRequest && doRequest) {
             return this._sendRequest(connection.ref).then(e => {
-                if(!this._connection) return;
-                this._connection[connection.ref] = {success: true, value: e};
+                if (!this._connection) return;
+                this._connection[connection.ref] = { success: true, value: e };
                 return generateDataFromResponse(e);
             });
         }
