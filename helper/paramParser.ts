@@ -199,7 +199,7 @@ class ParamParser {
         });
     }
 
-    public async asyncParseParams(connection: ConnectionRef, doRequest: boolean = true) {
+    public async asyncParseParams(connection: ConnectionRef, doRequest = true) {
         for (const [k, v] of Object.entries(connection.vars)) {
             this.varsStorage.set(k, this.parseParams(v));
         }
