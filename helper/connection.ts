@@ -96,13 +96,16 @@ export function generateDataFromResponse(response: AxiosResponse<ArrayBuffer>) {
     return content;
 }
 
-export async function proxyRequest(url: string, input: ProjectDescription, defaultInitialize = true) {
+export async function proxyRequest(url: string, input: ProjectDescription, projectId: string, defaultInitialize = true) {
     const data = generateRequestData(input, "text/plain");
-    const dataFieldName = data.contentType.toLocaleLowerCase() === "text/plain" ? "data" : "dataBinary";
+    // TODO: Handle Form Data!
+    const dataFieldName = data.contentType?.toLocaleLowerCase() === "text/plain" ? "data" : "dataBinary";
 
     const bodyFormData = new FormData();
+    bodyFormData.append("id", projectId);
     bodyFormData.append("url", getUrl("{{internal.HOST_URL}}", input));
     bodyFormData.append("headers", JSON.stringify(generateHeaders(input.headers)));
+    bodyFormData.append("method", input.method);
     bodyFormData.append(dataFieldName, data.data);
     bodyFormData.append("contentType", data.contentType);
 
