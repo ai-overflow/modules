@@ -125,6 +125,10 @@ export default {
       type: String,
       required: false,
     },
+    customParser: {
+      type: Object,
+      required: false
+    },
     value: {},
   },
   data() {
@@ -139,14 +143,13 @@ export default {
   },
   methods: {
     parseArrays(value) {
-      let val = paramParser.parseParams(value, this.iterator);
-
+      let val = (this.customParser ?? paramParser).parseParams(value, this.iterator);
       return Array.isArray(val) ? val : [val];
     },
     asyncParseListLabel(connection = this.output?.format?.connection) {
       if (!connection) return;
 
-      paramParser.asyncParseParams(connection).then((val) => {
+      (this.customParser ?? paramParser).asyncParseParams(connection).then((val) => {
         let output = Array.isArray(val) ? val : [val];
         this.promiseBuffer = zip([
           this.parseArrays(this.output.format.labelName),
@@ -164,7 +167,7 @@ export default {
   watch: {
     outputData: function () {
       this.$emit("input", this.outputData);
-    },
+    }
   },
   computed: {
     parseListLabel: function () {

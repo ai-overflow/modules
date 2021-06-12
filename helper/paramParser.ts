@@ -11,7 +11,7 @@ interface ConnectionRef {
     vars: Record<string, string>
 }
 
-class ParamParser {
+export class ParamParser {
     private _input?: Record<string, any>;
     private _connection?: Record<string, Connection>
     private _sendRequest?: (connectionName: string) => Promise<AxiosResponse<any>>
