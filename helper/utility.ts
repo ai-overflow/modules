@@ -41,8 +41,8 @@ export function cutStringLength(part: string, maxLength = 200) {
 }
 
 export function defaultParamGenerator(input: any) {
-    const output = [];
-    for (const [key, value] of Object.entries(input.input)) {
+    const output: Record<string, any> = {};
+    for (const [key, value] of Object.entries<any>(input.input)) {
         switch (value.type.toLowerCase()) {
             case "select":
             case "checkbox":
