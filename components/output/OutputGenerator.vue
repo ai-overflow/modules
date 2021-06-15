@@ -51,7 +51,7 @@
     <div v-if="['iframe'].includes(output.type)">
       <div v-if="output.format">
         <div v-for="value in parseHTMLType" :key="value" class="ma-2">
-          <iframe :src="value" :title="value" frameborder="0" />
+          <iframe :src="value" :title="value" class="outputiframe" />
         </div>
       </div>
     </div>
@@ -209,5 +209,10 @@ export default {
   text-align: center;
   font-size: 20pt;
   background: rgba(0, 0, 0, 0.3);
+}
+.outputiframe {
+  border: none;
+  width: 100%;
+  height: 400px;
 }
 </style>
