@@ -72,7 +72,16 @@ export default {
       );
     },
     createPolygon(poly) {
-      let anchors = this.createAnchor(poly);
+      let anchors;
+      switch (this.representation) {
+        case "line":
+          anchors = poly.value.map((e) => {
+            return this.createAnchor({ value: [e.from, e.to] });
+          });
+          break;
+        default:
+          anchors = this.createAnchor(poly);
+      }
 
       let path;
       switch (this.representation) {
@@ -112,6 +121,20 @@ export default {
             );
             circle.fill = poly.color || "rgba(0, 255, 0, 0.5)";
             path.push(circle);
+          }
+          break;
+        case "line":
+          path = [];
+          for (let anchor of anchors) {
+            let line = this.two.makeLine(
+              anchor[0].x,
+              anchor[0].y,
+              anchor[1].x,
+              anchor[1].y
+            );
+            line.stroke = poly.color || "rgba(0, 255, 0, 0.5)";
+            line.linewidth = poly.lineWidth || 5;
+            path.push(line);
           }
           break;
       }
