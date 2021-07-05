@@ -81,7 +81,7 @@ export function convertToText(buffer: ArrayBuffer, encoding: string) {
 export function generateDataFromResponse(response: AxiosResponse<ArrayBuffer>) {
     let content;
     if (response.headers["content-type"].startsWith("image")) {
-        const arr = Buffer.from(response.data, "binary");
+        const arr = Buffer.from(response.data/*, "binary"*/);
         content =
             "data:" +
             response.headers["content-type"] +
