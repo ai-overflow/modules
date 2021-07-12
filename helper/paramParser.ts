@@ -16,7 +16,16 @@ export class ParamParser {
     private _connection?: Record<string, Connection>
     private _sendRequest?: (connectionName: string) => Promise<AxiosResponse<any>>
     private varsStorage = new Map<string, string>();
+    private _debugMode = true;
     private readonly commandRegex = /{{cmd\.([A-Za-z_]+)\((.*?)\)}}/
+
+    constructor(debugMode = true) {
+        this._debugMode = debugMode;
+    }
+
+    public set debugMode(debugMode: boolean) {
+        this._debugMode = debugMode;
+    }
 
     public set input(input: Record<string, any>) {
         this._input = input;
@@ -36,7 +45,7 @@ export class ParamParser {
      * @returns Flat array from iterator string
      */
     public parseIterator(str: string, iterable: Record<string, any> | undefined = this._connection) {
-        if (!iterable || !this._connection) return str;
+        if (!iterable || !this._connection) return this._debugMode ? str : [];
         const results = str.split("/");
         const matchArray = /(.*?)\[(.*?)\]/;
         const matchNestedArray = /\[(.*?)\]/g;
@@ -46,7 +55,7 @@ export class ParamParser {
         let currentSelected;
 
         if (results[0].startsWith("connection.")) {
-            if (Object.keys(this._connection).length < 1) return str;
+            if (Object.keys(this._connection).length < 1) return this._debugMode ? str : "";
 
             let connName = results[0].split(".")[1];
 
@@ -57,7 +66,7 @@ export class ParamParser {
 
             if (this._connection[connName]) {
                 if (!this._connection[connName]?.success) {
-                    return "FAILED REQUEST";
+                    return this._debugMode ? "FAILED REQUEST" : "";
                 }
                 currentSelected = this._connection[connName]?.value;
 
@@ -65,7 +74,7 @@ export class ParamParser {
                     currentSelected = JSON.parse(currentSelected);
                 }
             } else {
-                return "TODO: REQUEST " + connName;
+                return this._debugMode ? "TODO: REQUEST " + connName : "";
             }
         } else {
             currentSelected = iterable;
@@ -76,8 +85,9 @@ export class ParamParser {
         }
 
         for (const val of results) {
-            if (currentSelected === undefined)
-                return "Out of Bounds: " + str;
+            if (currentSelected === undefined) {
+                return this._debugMode ? "Out of Bounds: " + str : "";
+            }
 
             const arrayTest = val.match(matchArray);
             if (arrayTest) {
@@ -105,7 +115,13 @@ export class ParamParser {
             }
         }
         // TODO: path split
-        return currentSelected === undefined ? "Index error at: " + str : currentSelected;
+        if (currentSelected === undefined) {
+            if (this._debugMode)
+                return "Index error at: " + str;
+            return "";
+        } else {
+            return currentSelected;
+        }
     }
 
     private parseCMD(str: string) {
@@ -123,7 +139,7 @@ export class ParamParser {
         if (connName.trim().length === 0) return str;
         if (this._connection[connName]) {
             if (!this._connection[connName]?.success) {
-                return "FAILED REQUEST";
+                return this._debugMode ? "FAILED REQUEST" : "";
             }
             currentSelected = this._connection[connName]?.value;
         }
@@ -186,16 +202,16 @@ export class ParamParser {
                     case 'language':
                         return navigator.language;
                     default:
-                        return 'unknown user property: ' + b;
+                        return this._debugMode ? 'unknown user property: ' + b : "";
                 }
             } else if (b.startsWith("vars.")) {
                 b = b.replace("vars.", "");
                 if (this.varsStorage.get(b) !== undefined) {
                     return this.varsStorage.get(b)
                 }
-                return "Missing Variable: " + b;
+                return this._debugMode ? "Missing Variable: " + b : "";
             }
-            return a;
+            return this._debugMode ? a : "";
         });
     }
 
@@ -215,7 +231,7 @@ export class ParamParser {
     }
 }
 
-export const paramParser = new ParamParser();
+export const paramParser = new ParamParser(process.env.VUE_APP_DEBUG?.toLowerCase() === "true");
 
 export function parseOrigin(str: string, input_vars: Record<string, any>, output_vars: Record<string, any>) {
     if (!str) return str;

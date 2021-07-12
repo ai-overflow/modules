@@ -4,6 +4,7 @@
 
 const p = require("../../helper/paramParser");
 p.paramParser.input = { "a": 0, "b": "Hello World", "c": [1, 2, 3], "d": { "f": 0 }, "e": 99.99999 }
+p.paramParser.debugMode = true;
 
 let languageGetter: jest.SpyInstance<string | undefined, []>;
 let userAgent: jest.SpyInstance<string | undefined, []>;

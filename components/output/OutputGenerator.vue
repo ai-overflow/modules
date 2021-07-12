@@ -89,7 +89,7 @@
         </v-col>
       </v-row>
     </div>
-    <div v-if="['polygon'].includes(output.type)">
+    <div v-if="['polygon'].includes(output.type) && parsePolygonLabel.every(e => Array.isArray(e.value))">
       <div class="ma-2">
         <PolygonMap
           :overlay="getSrcForOrigin"
