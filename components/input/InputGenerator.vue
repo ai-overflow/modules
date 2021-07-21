@@ -1,11 +1,12 @@
 <template>
   <div>
-    <v-file-input
+    <!--<v-file-input
       truncate-length="15"
       v-if="['image'].includes(typeInfo.type)"
       :label="typeInfo.label"
       v-model="inputData"
-    ></v-file-input>
+    ></v-file-input>-->
+    <DragNDropUpload v-model="inputData" :label="typeInfo.label" v-if="['image'].includes(typeInfo.type)" @change="e => $emit('change', e)" />
     <v-container v-if="['checkbox'].includes(typeInfo.type)">
       {{ typeInfo.label }}
       <v-checkbox
@@ -16,6 +17,7 @@
         hide-details
         v-model="inputData"
         :value="el"
+        @change="e => $emit('change', $event.target.checked)"
       ></v-checkbox>
     </v-container>
     <v-radio-group v-if="['radio'].includes(typeInfo.type)" v-model="inputData">
@@ -24,6 +26,7 @@
         :key="el"
         :label="el"
         :value="el"
+        @change="e => $emit('change', $event.target.checked)"
       ></v-radio>
     </v-radio-group>
     <v-text-field
@@ -31,11 +34,13 @@
       :label="typeInfo.label"
       :rules="generateRules(typeInfo.values)"
       v-model="inputData"
+      @change="e => $emit('change', $event.target.value)"
     />
     <v-textarea
       v-if="['textarea'].includes(typeInfo.type)"
       :label="typeInfo.label"
       v-model="inputData"
+      @change="e => $emit('change', $event.target.value)"
     />
     <v-select
       v-if="['select', 'multiselect'].includes(typeInfo.type)"
@@ -48,6 +53,7 @@
       single-line
       :multiple="typeInfo.type === 'multiselect'"
       v-model="inputData"
+      @change="e => $emit('change', $event.target.value)"
     ></v-select>
     <v-slider
       v-if="['slider'].includes(typeInfo.type)"
@@ -55,12 +61,14 @@
       :max="typeInfo.values.max"
       :step="typeInfo.values.stepSize"
       v-model="inputData"
+      @change="e => $emit('change', $event.target.value)"
     />
   </div>
 </template>
 
 <script>
 import { toBase64 } from "@shared/helper/utility";
+import DragNDropUpload from "@shared/components/helper/DragNDropUpload.vue";
 
 export default {
   props: {
@@ -72,6 +80,7 @@ export default {
       inputData: {},
     };
   },
+  components: { DragNDropUpload },
   created() {
     if (this.typeInfo.type === "checkbox") {
       this.inputData = [];
@@ -109,10 +118,9 @@ export default {
   },
   watch: {
     inputData: function () {
-      if(this.typeInfo.type === "image") {
-        if(this.typeInfo.values.type === "base64") {
-          toBase64(this.inputData)
-          .then(e => {
+      if (this.typeInfo.type === "image") {
+        if (this.typeInfo.values.type === "base64") {
+          toBase64(this.inputData).then((e) => {
             this.$emit("input", e);
           });
         }
