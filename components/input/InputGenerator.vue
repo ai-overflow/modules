@@ -34,13 +34,13 @@
       :label="typeInfo.label"
       :rules="generateRules(typeInfo.values)"
       v-model="inputData"
-      @change="e => $emit('change', $event.target.value)"
+      @change="e => $emit('change', e)"
     />
     <v-textarea
       v-if="['textarea'].includes(typeInfo.type)"
       :label="typeInfo.label"
       v-model="inputData"
-      @change="e => $emit('change', $event.target.value)"
+      @change="e => $emit('change', e)"
     />
     <v-select
       v-if="['select', 'multiselect'].includes(typeInfo.type)"
@@ -53,7 +53,7 @@
       single-line
       :multiple="typeInfo.type === 'multiselect'"
       v-model="inputData"
-      @change="e => $emit('change', $event.target.value)"
+      @change="e => $emit('change', e)"
     ></v-select>
     <v-slider
       v-if="['slider'].includes(typeInfo.type)"
@@ -61,7 +61,7 @@
       :max="typeInfo.values.max"
       :step="typeInfo.values.stepSize"
       v-model="inputData"
-      @change="e => $emit('change', $event.target.value)"
+      @change="e => $emit('change', e)"
     />
   </div>
 </template>
