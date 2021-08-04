@@ -97,6 +97,7 @@
           :representation="this.output.format.representation"
           :highlight="highlight"
           :showLabels="this.output.format.showLabels"
+          :canvas="canvas"
         />
       </div>
     </div>
@@ -129,6 +130,10 @@ export default {
       type: Object,
       required: false
     },
+    canvas: {
+      type: Array,
+      required: false
+    },
     value: {},
   },
   data() {
@@ -140,6 +145,7 @@ export default {
   components: { PolygonMap },
   created() {
     this.asyncParseListLabel();
+    console.log(this.canvas)
   },
   methods: {
     parseArrays(value) {

@@ -60,6 +60,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    canvas: {
+      type: Array,
+      required: false,
+    },
   },
   methods: {
     createAnchor(poly) {
@@ -142,7 +146,15 @@ export default {
     },
     createPolygonList() {
       if (!this.two) return;
-      this.two.appendTo(this.$refs.polygonRef);
+
+      if (this.canvas) {
+        let el = (Array.isArray(this.canvas) ? this.canvas[0]  : this.canvas);
+        console.log(el);
+        this.two.appendTo(el);
+      } else {
+        this.two.appendTo(this.$refs.polygonRef);
+      }
+
       this.two.clear();
       this.elements = [];
 
@@ -226,6 +238,9 @@ export default {
     highlight: function () {
       this.createPolygonList();
     },
+    canvas: function() {
+      this.createPolygonList();
+    }
   },
   mounted() {
     this.handleOverlay();
