@@ -17,10 +17,12 @@ export class ParamParser {
     private _sendRequest?: (connectionName: string) => Promise<AxiosResponse<any>>
     private varsStorage = new Map<string, string>();
     private _debugMode = true;
+    private _ignoreInput = new Array<any>();
     private readonly commandRegex = /{{cmd\.([A-Za-z_]+)\((.*?)\)}}/
 
-    constructor(debugMode = true) {
+    constructor(debugMode = true, ignoreInput = []) {
         this._debugMode = debugMode;
+        this._ignoreInput = ignoreInput;
     }
 
     public set debugMode(debugMode: boolean) {
@@ -158,6 +160,8 @@ export class ParamParser {
         // special case for vars:
         if (str.startsWith("{{input.") && str.endsWith("}}") && this._input) {
             const result = str.replace(/{{input.(.*?)}}/, "$1");
+            if(this._ignoreInput.includes(result)) return str;
+
             if (result && this._input[result] !== undefined) {
                 return this._input[result];
             }
@@ -183,6 +187,7 @@ export class ParamParser {
         return str.replace(re, (a, b) => {
             if (b.startsWith("input.")) {
                 b = b.replace("input.", "");
+            if(this._ignoreInput.includes(b)) return a;
                 if (a && b && this._input && this._input[b] !== undefined) {
                     return this._input[b];
                 }

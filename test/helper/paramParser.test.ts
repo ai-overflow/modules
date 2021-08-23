@@ -225,3 +225,14 @@ test('Test Vars', () => {
     expect(p.paramParser.parseParams("{{vars.B}}")).toBe("Hello World");
     expect(p.paramParser.parseParams("{{vars.C}}")).toBe("0");
 });
+
+
+test('Tet Ingore', () => {
+    const parser = new p.ParamParser(false, ["a", "f"]);
+    parser.input = { "a": 0, "b": "Hello World", "c": [1, 2, 3], "d": { "f": 0 }, "e": 99.99999 }
+
+    expect(parser.parseParams("{{input.a}}")).toBe("{{input.a}}");
+    expect(parser.parseParams("Test {{input.a}} Test ")).toBe("Test {{input.a}} Test ");
+    expect(parser.parseParams("{{input.b}}")).toBe("Hello World");
+    expect(parser.parseParams("{{input.f}}")).toBe("{{input.f}}");
+});

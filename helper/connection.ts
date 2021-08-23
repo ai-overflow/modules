@@ -96,10 +96,10 @@ export function generateDataFromResponse(response: AxiosResponse<ArrayBuffer>) {
     return content;
 }
 
-export async function proxyRequest(url: string, input: ProjectDescription, projectId: string, defaultInitialize = true) {
+export async function proxyRequest(url: string, input: ProjectDescription, projectId: string, cacheId: string,  defaultInitialize = true) {
     const data = generateRequestData(input, "text/plain");
     // TODO: Handle Form Data!
-    const dataFieldName = data.contentType?.toLocaleLowerCase() === "text/plain" ? "data" : "dataBinary";
+    const dataFieldName = data.contentType?.toLocaleLowerCase() === "text/plain" || !data.data || data.data.toLowerCase().startsWith("{{input.") ? "data" : "dataBinary";
 
     const bodyFormData = new FormData();
     bodyFormData.append("id", projectId);
@@ -108,6 +108,7 @@ export async function proxyRequest(url: string, input: ProjectDescription, proje
     bodyFormData.append("method", input.method);
     bodyFormData.append(dataFieldName, data.data);
     bodyFormData.append("contentType", data.contentType);
+    bodyFormData.append("cacheId", cacheId);
 
     return axios({
         method: 'POST',

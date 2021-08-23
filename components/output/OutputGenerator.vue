@@ -145,7 +145,7 @@ export default {
   components: { PolygonMap },
   created() {
     this.asyncParseListLabel();
-    console.log(this.canvas)
+    //console.log(this.canvas)
   },
   methods: {
     parseArrays(value) {
