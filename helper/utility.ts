@@ -5,11 +5,11 @@ export function zip(rows: Array<any>) {
     );
 }
 
-export function toBase64(file: Blob) {
+export function toBase64(file: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
+        reader.onload = () => resolve(reader.result as string);
         reader.onerror = error => reject(error);
     });
 }
@@ -59,4 +59,20 @@ export function defaultParamGenerator(input: any) {
         }
     }
     return output;
+}
+
+export async function resizeFile(file: File, maxSize: number, outputType: string = "image/jpeg") {
+    let base64Data = await toBase64(file);
+
+    var img = new Image();
+    img.src = base64Data;
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    const newSize = scaleToSize({width: img.width, height: img.height}, maxSize);
+    canvas.width = newSize.width;
+    canvas.height = newSize.height;
+    ctx.drawImage(img, 0, 0, newSize.width, newSize.height);
+    base64Data = canvas.toDataURL(outputType);
+
+    return base64Data;
 }
