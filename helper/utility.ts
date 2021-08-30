@@ -61,18 +61,21 @@ export function defaultParamGenerator(input: any) {
     return output;
 }
 
-export async function resizeFile(file: File, maxSize: number, outputType: string = "image/jpeg") {
+export async function resizeFile(file: File, maxSize: number, outputType = "image/jpeg") {
     let base64Data = await toBase64(file);
 
-    var img = new Image();
+    const img = new Image();
     img.src = base64Data;
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-    const newSize = scaleToSize({width: img.width, height: img.height}, maxSize);
-    canvas.width = newSize.width;
-    canvas.height = newSize.height;
-    ctx.drawImage(img, 0, 0, newSize.width, newSize.height);
-    base64Data = canvas.toDataURL(outputType);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    if (ctx != null) {
+        const newSize = scaleToSize({ width: img.width, height: img.height }, maxSize);
+        canvas.width = newSize.width;
+        canvas.height = newSize.height;
+        ctx.drawImage(img, 0, 0, newSize.width, newSize.height);
+        base64Data = canvas.toDataURL(outputType);
+    }
 
     return base64Data;
 }

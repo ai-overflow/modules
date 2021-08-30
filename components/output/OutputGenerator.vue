@@ -97,7 +97,6 @@
           :representation="this.output.format.representation"
           :highlight="highlight"
           :showLabels="this.output.format.showLabels"
-          :canvas="canvas"
         />
       </div>
     </div>
