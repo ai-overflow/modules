@@ -98,7 +98,6 @@ export function generateDataFromResponse(response: AxiosResponse<ArrayBuffer>) {
 
 export async function proxyRequest(url: string, input: ProjectDescription, projectId: string, cacheId: string,  defaultInitialize = true) {
     const data = generateRequestData(input, "text/plain");
-    // TODO: Handle Form Data!
     const dataFieldName = data.contentType?.toLocaleLowerCase() === "text/plain" || !data.data || data.data.toLowerCase().startsWith("{{input.") ? "data" : "dataBinary";
 
     const bodyFormData = new FormData();
@@ -106,9 +105,19 @@ export async function proxyRequest(url: string, input: ProjectDescription, proje
     bodyFormData.append("url", getUrl("{{internal.HOST_URL}}", input));
     bodyFormData.append("headers", JSON.stringify(generateHeaders(input.headers)));
     bodyFormData.append("method", input.method);
-    bodyFormData.append(dataFieldName, data.data);
-    bodyFormData.append("contentType", data.contentType);
     bodyFormData.append("cacheId", cacheId);
+    if(data.data instanceof FormData) {
+        for(const pair of data.data.entries()) {
+            if(pair[1] instanceof File) {
+                //bodyFormData.append("dataBinary", pair[1]);
+                bodyFormData.append("dataName", pair[0]);
+                data.contentType = pair[1].type;
+            }
+         }
+    } else {
+        bodyFormData.append(dataFieldName, data.data);
+    }
+    bodyFormData.append("contentType", data.contentType);
 
     return axios({
         method: 'POST',
