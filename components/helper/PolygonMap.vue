@@ -41,7 +41,7 @@ import { toBase64, readSize, scaleToSize } from "@shared/helper/utility";
 export default {
   data() {
     return {
-      maxImageSize: 500,
+      maxImageSize: 750,
       two: this.generateTwo(),
       base64Str: "ERROR",
       imgSize: {},
